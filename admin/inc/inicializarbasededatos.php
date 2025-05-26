@@ -65,16 +65,16 @@ $db->exec("CREATE TABLE IF NOT EXISTS admins (
 
 $db->exec("
     INSERT OR IGNORE INTO admins (name, email, username, password)
-    VALUES ('Jose Vicente Carratala', 'info@josevicentecarratala.com', 'jocarsa', 'jocarsa')
+    VALUES ('Andrei Buga', 'bugaandrei1@gmail.com', 'andrei', 'andrei')
 ");
 
 $db->exec("
     INSERT OR IGNORE INTO config (key, value) VALUES
-        ('title', 'jocarsa | gainsboro'),
+        ('title', 'andrei | gainsboro'),
         ('logo', 'https://jocarsa.com/static/logo/jocarsa%20%7C%20gainsboro.svg'),
         ('meta_description', 'Default meta description'),
         ('meta_tags', 'default, tags'),
-        ('meta_author', 'Jose Vicente Carratala'),
+        ('meta_author', 'Andrei Buga'),
         ('active_theme', 'gainsboro'),
         ('footer_image', 'https://jocarsa.com/static/logo/footer-logo.svg'),
         ('analytics_user', 'defaultUser')

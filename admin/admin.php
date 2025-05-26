@@ -1,61 +1,135 @@
 <?php
-session_start();
-require_once 'config.php';
+/**
+ * Archivo: admin.php
+ *
+ * Descripción:
+ *   Este archivo es el punto de entrada del panel administrativo del CMS.
+ *   Se encarga de iniciar la sesión, establecer la conexión a la base de datos,
+ *   inicializar las tablas necesarias, incluir las funciones auxiliares para
+ *   autenticación y enrutar las diversas acciones administrativas definidas
+ *   mediante el parámetro GET "action".
+ *
+ *   Tanto el título (en la etiqueta <title>) como el encabezado (<h1>) muestran
+ *   el texto "andrei | gainsboro" de forma fija.
+ *
+ * @package CMS-ANDREI-ADMIN
+ */
 
-// ---------------------------------------------------------------------
-// Database Connection & Table Creation
-// ---------------------------------------------------------------------
+session_start();
+
+// Se incluye la configuración (ruta de la base de datos, etc.)
+require_once '../config.php';
+
+// Inicializa la base de datos y crea las tablas necesarias.
 include "inc/inicializarbasededatos.php";
 
+// Inserta las redes sociales por defecto si aún no existen.
 foreach ($defaultSocialMedia as $item) {
     list($category, $name, $logo) = $item;
     $existing = $db->querySingle("SELECT COUNT(*) FROM social_media WHERE name = '$name'");
     if ($existing == 0) {
-        $db->exec("
-            INSERT INTO social_media (category, name, url, logo)
-            VALUES ('$category', '$name', '', '$logo')
-        ");
+        $db->exec("INSERT INTO social_media (category, name, url, logo) VALUES ('$category', '$name', '', '$logo')");
     }
 }
 
-// ---------------------------------------------------------------------
-// Helper Functions
-// ---------------------------------------------------------------------
-include "funciones/comprobarlogin.php";
-include "funciones/requerirlogin.php";
-include "funciones/accionactual.php";
-include "funciones/renderadmin.php";
-include "funciones/obtenermedios.php";
-include "funciones/obtenertemas.php";
-include "funciones/activartema.php";
+// Se incluyen las funciones auxiliares necesarias.
+include "funciones/comprobarlogin.php";      // Función isLoggedIn()
+include "funciones/requerirlogin.php";        // Redirige al login si no se está autenticado
+include "funciones/accionactual.php";         // Función para marcar la acción activa en la navegación
+include "funciones/obtenermedios.php";        // Función para obtener medios
+include "funciones/obtenertemas.php";         // Función para obtener los temas disponibles
+include "funciones/activartema.php";          // Función para activar el tema seleccionado
 
+/**
+ * Función renderAdmin
+ *
+ * Renderiza la estructura completa del panel administrativo, incluyendo:
+ * - La navegación lateral.
+ * - El encabezado, que muestra "andrei | gainsboro" (tanto en la etiqueta <h1> como en el title).
+ * - El contenido principal recibido.
+ *
+ * @param string $content Contenido HTML a mostrar en la sección principal.
+ * @param bool   $showNav Indica si se debe mostrar la navegación lateral.
+ */
+function renderAdmin($content, $showNav = true) {
+    echo "<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>andrei | gainsboro</title>
+    <link rel='stylesheet' href='admin.css'>
+    <link rel='stylesheet' href='https://jocarsa.github.io/jocarsa-lightslateblue/jocarsa%20|%20lightslateblue.css'>
+</head>
+<body>
+<div id='admin-container'>";
+
+    if ($showNav) {
+        echo "<div id='admin-sidebar'>
+            <nav>
+                <a href='?action=dashboard'" . accionActual($_GET['action'] ?? '', 'dashboard') . ">Inicio</a>
+                <hr>
+                <a href='?action=list_pages'" . accionActual($_GET['action'] ?? '', 'list_pages') . ">Páginas</a>
+                <a href='?action=list_blog'" . accionActual($_GET['action'] ?? '', 'list_blog') . ">Blog</a>
+                <a href='?action=list_media'" . accionActual($_GET['action'] ?? '', 'list_media') . ">Biblioteca</a>
+                <a href='?action=list_heroes'" . accionActual($_GET['action'] ?? '', 'list_heroes') . ">Héroes</a>
+                <a href='?action=list_social_media'" . accionActual($_GET['action'] ?? '', 'list_social_media') . ">Redes Sociales</a>
+                <hr>
+                <a href='?action=list_themes'" . accionActual($_GET['action'] ?? '', 'list_themes') . ">Temas</a>
+                <a href='?action=edit_theme'" . accionActual($_GET['action'] ?? '', 'edit_theme') . ">Editar Tema</a>
+                <a href='?action=list_custom_css'" . accionActual($_GET['action'] ?? '', 'list_custom_css') . ">CSS personalizado</a>
+                <hr>
+                <a href='?action=list_contact'" . accionActual($_GET['action'] ?? '', 'list_contact') . ">Contacto</a>
+                <hr>
+                <a href='?action=list_admins'" . accionActual($_GET['action'] ?? '', 'list_admins') . ">Administradores</a>
+                <a href='?action=list_config'" . accionActual($_GET['action'] ?? '', 'list_config') . ">Configuración</a>
+                <hr>
+                <a href='?action=logout'" . accionActual($_GET['action'] ?? '', 'logout') . ">Salir</a>
+            </nav>
+        </div>";
+    }
+
+    echo "<div id='admin-content'>";
+    if ($showNav) {
+        echo "<div id='admin-header'>
+            <img src='gainsboro.png' alt='URL de la imagen' style='width:50px; margin-right:20px;'>
+            <h1>andrei | gainsboro</h1>
+        </div>";
+    }
+    echo "<div class='admin-section'>
+            $content
+          </div>";
+    echo "</div>
+</div>
+<script src='https://jocarsa.github.io/jocarsa-lightslateblue/jocarsa%20|%20lightslateblue.js'></script>
+</body>
+</html>";
+}
 
 // ---------------------------------------------------------------------
-// Routing & Login Handling
+// Manejo de rutas y autenticación
 // ---------------------------------------------------------------------
 $action = $_GET['action'] ?? 'login';
-$message = '';
+$message = "";
 
-// LOGOUT
+// Si la acción es "logout", se cierra la sesión.
 if ($action === 'logout') {
     include "rutas/cerrarsesion.php";
 }
 
-// PROCESS LOGIN using the admins table
+// Si la acción es "do_login", se procesa el inicio de sesión.
 if ($action === 'do_login') {
     include "rutas/iniciarsesion.php";
 }
 
-// If user not logged in, force login (except for login action)
+// Si el usuario no está autenticado (excepto cuando se está en "login"), se fuerza el acceso al login.
 if (!isLoggedIn() && $action !== 'login') {
-   include "rutas/forzarlogin.php";
+    include "rutas/forzarlogin.php";
 }
 
 // ---------------------------------------------------------------------
-// SWITCH ACTIONS
+// Enrutamiento de las acciones del panel administrativo
 // ---------------------------------------------------------------------
 switch ($action) {
-
     case 'login':
         include "acciones/login.php";
         break;
@@ -148,14 +222,10 @@ switch ($action) {
         exit();
     default:
         if (isLoggedIn()) {
-            header('Location: ?action=dashboard');
+            header("Location: ?action=dashboard");
         } else {
-            header('Location: ?action=login');
+            header("Location: ?action=login");
         }
         exit();
 }
 ?>
-
-<link rel="stylesheet" href="https://jocarsa.github.io/jocarsa-lightslateblue/jocarsa%20%7C%20lightslateblue.css">
-<script src="https://jocarsa.github.io/jocarsa-lightslateblue/jocarsa%20%7C%20lightslateblue.js"></script>
-

@@ -5,7 +5,6 @@
         if (empty($themes)) {
             $html .= "<p>No se encontraron temas en la carpeta css.</p>";
             renderAdmin($html);
-            break;
         }
         $html .= "<table class='admin-table'>
                     <tr><th>Nombre del Tema</th><th>Activo</th><th>Acción</th></tr>";
