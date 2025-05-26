@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://localhost/?page=inicio</loc>
+    <loc>http://127.0.0.1/?page=inicio</loc>
     <lastmod>2025-05-26</lastmod>
   </url>
   <url>
-    <loc>http://localhost/?page=blog</loc>
+    <loc>http://127.0.0.1/?page=blog</loc>
     <lastmod>2025-05-26</lastmod>
   </url>
   <url>
-    <loc>http://localhost/?page=contacto</loc>
+    <loc>http://127.0.0.1/?page=contacto</loc>
     <lastmod>2025-05-26</lastmod>
   </url>
 </urlset>
