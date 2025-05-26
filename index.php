@@ -4,18 +4,18 @@
  *
  * Descripción:
  *   Este archivo es el punto de entrada del sitio público del CMS.
- *   Se encarga de inicializar la conexión a la base de datos SQLite,
- *   crear las tablas necesarias (páginas, blog, configuración, contacto, héroes,
- *   redes sociales y CSS personalizado), insertar valores de configuración por defecto,
- *   detectar el tema activo y renderizar dinámicamente el contenido en función del parámetro GET "page".
- *
- *   Además, genera la navegación primaria y secundaria, renderiza la sección "hero" (si está definida)
- *   y crea un sitemap.xml para la indexación en motores de búsqueda.
- *
- *   La cabecera (header) muestra un enlace en el `<h1>` con un estilo inline que elimina la
- *   decoración de texto (sin subrayado ni ningún text-decoration).
- *
- *   Se incluye también la llamada al script de analytics utilizando la URL configurada.
+ *   Se encarga de:
+ *     - Inicializar la conexión a la base de datos SQLite.
+ *     - Crear las tablas necesarias (pages, blog, config, contact, heroes,
+ *       social_media, custom_css, etc.) automáticamente si no existen.
+ *     - Insertar valores de configuración por defecto.
+ *     - Recuperar la configuración almacenada.
+ *     - Detectar el tema activo y el CSS personalizado.
+ *     - Renderizar dinámicamente el contenido (páginas, blog, contacto, sección hero)
+ *       en función del parámetro GET "page".
+ *     - Generar la navegación primaria y secundaria.
+ *     - Crear un sitemap.xml para la indexación del sitio.
+ *     - Incluir el script de analytics.
  *
  * @package CMS-ANDREI
  */
@@ -24,10 +24,10 @@ require_once 'config.php';
 
 // Inicializa la base de datos SQLite3
 $db = new SQLite3($dbPath);
-$db->busyTimeout(5000); // Para mitigar bloqueos en la base
+$db->busyTimeout(5000); // Espera hasta 5 segundos en caso de bloqueo
 
 // ---------------------------------------------------------------------
-// Creación de tablas necesarias
+// Creación de las tablas necesarias
 // ---------------------------------------------------------------------
 $db->exec("CREATE TABLE IF NOT EXISTS pages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -107,13 +107,13 @@ while ($row = $resultConfig->fetchArray(SQLITE3_ASSOC)) {
     $config[$row['key']] = $row['value'];
 }
 
-$title           = htmlspecialchars($config['title'] ?? 'Título por defecto');
+$title           = htmlspecialchars($config['title'] ?? 'andrei | gainsboro');
 $logo            = htmlspecialchars($config['logo'] ?? 'default-logo.svg');
 $footerImage     = htmlspecialchars($config['footer_image'] ?? 'default-footer-logo.svg');
 $metaDescription = htmlspecialchars($config['meta_description'] ?? 'Descripción por defecto');
 $metaTags        = htmlspecialchars($config['meta_tags'] ?? 'andrei, cms, gainsboro');
-$metaAuthor      = htmlspecialchars($config['meta_author'] ?? 'Autor por defecto');
-$analyticsUser   = htmlspecialchars($config['analytics_user'] ?? 'defaultUser');
+$metaAuthor      = htmlspecialchars($config['meta_author'] ?? 'Andrei');
+$analyticsUser   = htmlspecialchars($config['analytics_user'] ?? 'andreiUser');
 
 // ---------------------------------------------------------------------
 // Detección de temas disponibles en la carpeta "css"
@@ -146,11 +146,11 @@ if ($cssResult) {
 // ---------------------------------------------------------------------
 function renderPrimaryNav($db) {
     $navHTML = "<nav class='primary-nav'>";
-    // Enlace "Inicio" siempre primero
+    // Siempre se muestra el enlace "Inicio"
     $active = (isset($_GET['page']) && $_GET['page'] === 'inicio') ? "active" : "";
     $navHTML .= "<a class='$active' href='?page=inicio'>Inicio</a>";
     
-    // Muestra las páginas de primer nivel, excepto "inicio", "blog" y "contacto"
+    // Muestra las páginas de primer nivel excepto "inicio", "blog" y "contacto"
     $stmt = $db->prepare("SELECT * FROM pages WHERE parent_id IS NULL AND title NOT IN ('inicio','blog','contacto') ORDER BY title ASC");
     $result = $stmt->execute();
     while ($page = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -158,7 +158,7 @@ function renderPrimaryNav($db) {
         $navHTML .= "<a class='$active' href='?page=" . urlencode($page['title']) . "'>" . htmlspecialchars($page['title']) . "</a>";
     }
     
-    // Enlaces estáticos
+    // Enlaces estáticos para Blog y Contacto
     $active = (isset($_GET['page']) && $_GET['page'] === 'blog') ? "active" : "";
     $navHTML .= "<a class='$active' href='?page=blog'>Blog</a>";
     $active = (isset($_GET['page']) && $_GET['page'] === 'contacto') ? "active" : "";
@@ -194,7 +194,7 @@ function getActiveChain($db, $pageTitle) {
 }
 
 // ---------------------------------------------------------------------
-// Función: Renderiza la subnavegación (de forma recursiva)
+// Función: Renderiza la subnavegación de forma recursiva
 // ---------------------------------------------------------------------
 function renderSubNav($db, $parentId, $activeChain) {
     $stmt = $db->prepare("SELECT * FROM pages WHERE parent_id = :parent_id ORDER BY title ASC");
@@ -213,7 +213,7 @@ function renderSubNav($db, $parentId, $activeChain) {
         $subNavHTML .= "<a class='$active' href='?page=" . urlencode($child['title']) . "'>" . htmlspecialchars($child['title']) . "</a>";
     }
     $subNavHTML .= "</nav>";
-    // Renderiza recursivamente submenús para los hijos activos
+    // Renderiza submenús recursivamente para los hijos de la cadena activa
     foreach ($children as $child) {
         if (in_array($child['id'], $activeChain)) {
             $subNavHTML .= renderSubNav($db, $child['id'], $activeChain);
@@ -283,7 +283,7 @@ function render(
     echo "  <body>\n";
     echo "      <header>\n";
     echo "          <h1>\n";
-    // Aquí se agrega el estilo inline para eliminar la decoración del texto (sin underline)
+    // El enlace en el header se estiliza para no tener decoración (ni underline)
     echo "              <a href='?page=inicio' style='text-decoration: none;'>\n";
     echo "                  <img src=\"gainsboro.png\" alt=\"Site Logo\"> $title\n";
     echo "              </a>\n";
@@ -308,18 +308,21 @@ function render(
 // ---------------------------------------------------------------------
 $pageParam = $_GET['page'] ?? 'inicio';
 
-// Obtiene la cadena activa para la subnavegación
+// Obtiene la cadena activa (IDs de las páginas) para la subnavegación
 $activeChain = getActiveChain($db, $pageParam);
 
 // Renderiza la navegación primaria
 $primaryNav = renderPrimaryNav($db);
 
-// Renderiza la subnavegación (si existe)
+// Renderiza la subnavegación, si corresponde
 $subNav = "";
 if (!empty($activeChain)) {
     $subNav = renderSubNav($db, $activeChain[0], $activeChain);
 }
 
+// ---------------------------------------------------------------------
+// Procesamiento de la solicitud basado en "page"
+// ---------------------------------------------------------------------
 if ($pageParam === 'blog') {
     // Procesa y renderiza las entradas del blog.
     $blogResult = $db->query("SELECT title, content, created_at FROM blog ORDER BY created_at DESC");
@@ -368,7 +371,7 @@ if ($pageParam === 'blog') {
     $heroSection = fetchHeroSection($db, 'contacto');
     render($heroSection, $contactContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } else {
-    // Renderiza una página normal.
+    // Procesa y renderiza el contenido de una página normal.
     $stmt = $db->prepare("SELECT content FROM pages WHERE title = :title");
     $stmt->bindValue(':title', $pageParam, SQLITE3_TEXT);
     $result = $stmt->execute();
