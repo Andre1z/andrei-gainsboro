@@ -4,23 +4,27 @@
  *
  * Descripción:
  *   Este archivo es el punto de entrada del sitio público del CMS.
- *   Se encarga de inicializar la conexión con la base de datos SQLite, crear las tablas
- *   necesarias (páginas, blog, configuración, contactos, sección hero, redes sociales y CSS personalizado),
- *   recuperar la configuración del sitio y renderizar dinámicamente el contenido según
- *   el parámetro GET "page".
+ *   Se encarga de inicializar la conexión a la base de datos SQLite,
+ *   crear las tablas necesarias (páginas, blog, configuración, contacto, héroes,
+ *   redes sociales y CSS personalizado), insertar valores de configuración por defecto,
+ *   detectar el tema activo y renderizar dinámicamente el contenido en función del parámetro GET "page".
  *
- *   Además, genera la navegación primaria y secundaria, renderiza la sección "hero" (si existe)
- *   y crea un sitemap.xml para facilitar la indexación en motores de búsqueda.
+ *   Además, genera la navegación primaria y secundaria, renderiza la sección "hero" (si está definida)
+ *   y crea un sitemap.xml para la indexación en motores de búsqueda.
  *
- *   Las analytics se mantienen según la URL original.
+ *   La cabecera (header) muestra un enlace en el `<h1>` con un estilo inline que elimina la
+ *   decoración de texto (sin subrayado ni ningún text-decoration).
+ *
+ *   Se incluye también la llamada al script de analytics utilizando la URL configurada.
  *
  * @package CMS-ANDREI
  */
 
 require_once 'config.php';
 
-// Inicialización de la base de datos SQLite3
+// Inicializa la base de datos SQLite3
 $db = new SQLite3($dbPath);
+$db->busyTimeout(5000); // Para mitigar bloqueos en la base
 
 // ---------------------------------------------------------------------
 // Creación de tablas necesarias
@@ -142,11 +146,11 @@ if ($cssResult) {
 // ---------------------------------------------------------------------
 function renderPrimaryNav($db) {
     $navHTML = "<nav class='primary-nav'>";
-    // El primer enlace siempre es "Inicio"
+    // Enlace "Inicio" siempre primero
     $active = (isset($_GET['page']) && $_GET['page'] === 'inicio') ? "active" : "";
     $navHTML .= "<a class='$active' href='?page=inicio'>Inicio</a>";
     
-    // Muestra las páginas de primer nivel, exceptuando "inicio", "blog" y "contacto"
+    // Muestra las páginas de primer nivel, excepto "inicio", "blog" y "contacto"
     $stmt = $db->prepare("SELECT * FROM pages WHERE parent_id IS NULL AND title NOT IN ('inicio','blog','contacto') ORDER BY title ASC");
     $result = $stmt->execute();
     while ($page = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -154,7 +158,7 @@ function renderPrimaryNav($db) {
         $navHTML .= "<a class='$active' href='?page=" . urlencode($page['title']) . "'>" . htmlspecialchars($page['title']) . "</a>";
     }
     
-    // Enlaces estáticos: Blog y Contacto
+    // Enlaces estáticos
     $active = (isset($_GET['page']) && $_GET['page'] === 'blog') ? "active" : "";
     $navHTML .= "<a class='$active' href='?page=blog'>Blog</a>";
     $active = (isset($_GET['page']) && $_GET['page'] === 'contacto') ? "active" : "";
@@ -190,7 +194,7 @@ function getActiveChain($db, $pageTitle) {
 }
 
 // ---------------------------------------------------------------------
-// Función: Renderiza la subnavegación (recursivamente)
+// Función: Renderiza la subnavegación (de forma recursiva)
 // ---------------------------------------------------------------------
 function renderSubNav($db, $parentId, $activeChain) {
     $stmt = $db->prepare("SELECT * FROM pages WHERE parent_id = :parent_id ORDER BY title ASC");
@@ -209,7 +213,7 @@ function renderSubNav($db, $parentId, $activeChain) {
         $subNavHTML .= "<a class='$active' href='?page=" . urlencode($child['title']) . "'>" . htmlspecialchars($child['title']) . "</a>";
     }
     $subNavHTML .= "</nav>";
-    // Renderiza recursivamente submenús de hijos que formen parte de la cadena activa
+    // Renderiza recursivamente submenús para los hijos activos
     foreach ($children as $child) {
         if (in_array($child['id'], $activeChain)) {
             $subNavHTML .= renderSubNav($db, $child['id'], $activeChain);
@@ -219,7 +223,7 @@ function renderSubNav($db, $parentId, $activeChain) {
 }
 
 // ---------------------------------------------------------------------
-// Función: Obtiene y renderiza la sección "hero" de una página (si existe)
+// Función: Obtiene y renderiza la sección "hero" de la página (si existe)
 // ---------------------------------------------------------------------
 function fetchHeroSection($db, $slug) {
     $stmt = $db->prepare("SELECT * FROM heroes WHERE page_slug = :slug");
@@ -244,9 +248,9 @@ function fetchHeroSection($db, $slug) {
 }
 
 // ---------------------------------------------------------------------
-// Función: Renderiza la estructura completa del sitio
+// Función: Renderiza la estructura completa del sitio público
 // ---------------------------------------------------------------------
-function renderSite(
+function render(
     $hero,
     $content,
     $primaryNav,
@@ -259,10 +263,10 @@ function renderSite(
     $metaTags,
     $metaAuthor,
     $analyticsUser,
-    $customCss
+    $customCssRules
 ) {
     echo "<!DOCTYPE html>\n";
-    echo "<html lang='es'>\n";
+    echo "<html lang='en'>\n";
     echo "  <head>\n";
     echo "      <meta charset='UTF-8'>\n";
     echo "      <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n";
@@ -271,32 +275,30 @@ function renderSite(
     echo "      <meta name='keywords' content='$metaTags'>\n";
     echo "      <meta name='author' content='$metaAuthor'>\n";
     echo "      <link rel='stylesheet' href='css/$theme.css'>\n";
-    if (!empty($customCss)) {
-        echo "      <style>\n$customCss\n      </style>\n";
+    if (!empty($customCssRules)) {
+        echo "      <style>\n$customCssRules\n      </style>\n";
     }
-    echo "      <link rel='icon' type='image/svg+xml' href='$logo'>\n";
+    echo "      <link rel='icon' type='image/svg+xml' href='gainsboro.png'>\n";
     echo "  </head>\n";
     echo "  <body>\n";
     echo "      <header>\n";
     echo "          <h1>\n";
-    echo "              <a href='?page=inicio'>\n";
-    echo "                  <img src='$logo' alt='Logo del sitio'> $title\n";
+    // Aquí se agrega el estilo inline para eliminar la decoración del texto (sin underline)
+    echo "              <a href='?page=inicio' style='text-decoration: none;'>\n";
+    echo "                  <img src=\"gainsboro.png\" alt=\"Site Logo\"> $title\n";
     echo "              </a>\n";
     echo "          </h1>\n";
     echo "      </header>\n";
-    // Renderiza la navegación primaria y secundaria
-    echo $primaryNav;
-    echo $subNav;
-    // Renderiza la sección "hero" si existe
+    echo "      $primaryNav\n";
+    echo "      $subNav\n";
     if (!empty($hero)) {
         echo $hero;
     }
     echo "      <main>\n$content\n      </main>\n";
     echo "      <footer>\n";
-    echo "          &copy; " . date('Y') . " <img src='$footerImage' alt='Logo del Footer'> $title\n";
+    echo "          &copy; " . date('Y') . " <img src=\"gainsboro.png\" alt=\"Footer Logo\"> $title\n";
     echo "      </footer>\n";
-    // Se mantiene la llamada a Analytics con la URL original
-    echo "      <script src='https://ghostwhite.jocarsa.com/analytics.js?user=$analyticsUser'></script>\n";
+    echo "      <script src=\"https://ghostwhite.jocarsa.com/analytics.js?user=$analyticsUser\"></script>\n";
     echo "  </body>\n";
     echo "</html>\n";
 }
@@ -312,14 +314,14 @@ $activeChain = getActiveChain($db, $pageParam);
 // Renderiza la navegación primaria
 $primaryNav = renderPrimaryNav($db);
 
-// Renderiza la subnavegación (si hay cadena activa)
+// Renderiza la subnavegación (si existe)
 $subNav = "";
 if (!empty($activeChain)) {
     $subNav = renderSubNav($db, $activeChain[0], $activeChain);
 }
 
 if ($pageParam === 'blog') {
-    // Renderiza las entradas del blog
+    // Procesa y renderiza las entradas del blog.
     $blogResult = $db->query("SELECT title, content, created_at FROM blog ORDER BY created_at DESC");
     $blogContent = "<h2>Blog</h2>\n";
     while ($entry = $blogResult->fetchArray(SQLITE3_ASSOC)) {
@@ -330,13 +332,13 @@ if ($pageParam === 'blog') {
         $blogContent .= "</article>\n<hr>\n";
     }
     $heroSection = fetchHeroSection($db, 'blog');
-    renderSite($heroSection, $blogContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+    render($heroSection, $blogContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } elseif ($pageParam === 'contacto') {
-    // Renderiza el formulario y el procesamiento de "Contacto"
+    // Procesa y renderiza el formulario de contacto.
     $contactContent = "<h2>Contacto</h2>";
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $name = trim($_POST['name'] ?? '');
-        $email = trim($_POST['email'] ?? '');
+        $name    = trim($_POST['name'] ?? '');
+        $email   = trim($_POST['email'] ?? '');
         $subject = trim($_POST['subject'] ?? '');
         $message = trim($_POST['message'] ?? '');
         if ($name && $email && $subject && $message) {
@@ -364,9 +366,9 @@ if ($pageParam === 'blog') {
         <button type='submit'>Enviar</button>
     </form>";
     $heroSection = fetchHeroSection($db, 'contacto');
-    renderSite($heroSection, $contactContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+    render($heroSection, $contactContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } else {
-    // Renderiza contenido de una página normal
+    // Renderiza una página normal.
     $stmt = $db->prepare("SELECT content FROM pages WHERE title = :title");
     $stmt->bindValue(':title', $pageParam, SQLITE3_TEXT);
     $result = $stmt->execute();
@@ -374,9 +376,9 @@ if ($pageParam === 'blog') {
     if ($pageData) {
         $pageContent = "<h2>" . htmlspecialchars($pageParam) . "</h2>\n<div>" . $pageData['content'] . "</div>\n";
         $heroSection = fetchHeroSection($db, $pageParam);
-        renderSite($heroSection, $pageContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+        render($heroSection, $pageContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
     } else {
-        renderSite("", "<h2>Página No Encontrada</h2>", $primaryNav, "", $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+        render("", "<h2>Página No Encontrada</h2>", $primaryNav, "", $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
     }
 }
 
