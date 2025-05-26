@@ -1,0 +1,220 @@
+/* adminlike.css
+   Un tema para el front-end con estilo similar al panel de administración */
+
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap');
+
+/* Global Resets */
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Ubuntu', Arial, sans-serif;
+    background-color: #f4f4f4; /* Fondo gris claro */
+    color: #333;              /* Texto oscuro para contraste */
+}
+
+/* HEADER */
+header {
+    background-color: #3a3a3a; /* Gris oscuro, igual que la barra superior del panel */
+    color: gainsboro;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+p{
+	text-align:justify;
+}
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    display: inline-block; 
+}
+
+header h1 img {
+    height: 40px;
+    margin-right: 10px;
+    vertical-align: middle; 
+}
+header h1 a{
+	text-decoration:none;
+	color:inherit;
+}
+
+/* NAVIGATION */
+nav {
+    background-color: #444;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center;
+	align-content: stretch;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 10px;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    text-transform:uppercase;
+}
+
+nav a:hover {
+    background-color: #3a3a3a;
+}
+
+/* MAIN CONTENT */
+main {
+    margin: 20px auto;
+    max-width: 1000px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+main h2 {
+    margin-top: 0;
+    font-size: 1.6rem;
+    color: #3a3a3a;
+}
+
+/* ARTICLES (BLOG ENTRIES, ETC.) */
+article {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+        width: 70%;
+    margin: auto;
+}
+
+article h3 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: #3a3a3a;
+}
+
+article time {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+/* CONTACT FORM */
+form.contact-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing:border-box;
+}
+
+form button[type="submit"] {
+    background-color: #3a3a3a;
+    color: #fff;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form button[type="submit"]:hover {
+    background-color: #2a2a2a;
+}
+
+/* FOOTER */
+footer {
+    background-color: #3a3a3a;
+    color: gainsboro;
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px; 
+}
+
+footer img {
+    height: 20px;
+    vertical-align: middle;
+}
+
+/* Horizontal Rules */
+hr {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 20px 0;
+}
+iframe{
+	border:none;
+	width:100%;
+}
+/* Make sure <body> and <html> span full width (already normal) */
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Ubuntu', Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* The hero section is placed outside the .main container, so let it stretch */
+.hero {
+    width: 100%;
+    min-height: 700px; /* or whatever height you prefer */
+    display: flex;          /* enables flexbox */
+    align-items: center;    /* vertical centering */
+    justify-content: center;/* horizontal centering */
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: #ffffff; /* White text on background image */
+}
+
+/* Overlay container to limit content width or add a backdrop */
+.hero-content {
+    max-width: 800px;
+    /*background-color: rgba(0, 0, 0, 0.4);*/ /* optional translucent background to make text more readable */
+    padding: 20px;
+    border-radius: 4px;
+    /* margin: 0 auto; <-- not needed if using flex center on the parent */
+    text-align:center;
+}
+
+.hero h2 {
+   text-align:center;
+    
+    font-size:4em
+}
+
+.hero p {
+ text-align:center;
+    font-size: 2rem;
+
+}
+nav a img{
+	width:28px;
+}
+

@@ -1,0 +1,107 @@
+/* orange.css
+   A theme reminiscent of older Mambo/Joomla (Limbo) styles with an orange color scheme */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: #fff; /* Keep a clean white background for the page */
+}
+
+/* HEADER */
+header {
+    /* Create a subtle vertical gradient from a lighter to a deeper orange */
+    background: linear-gradient(to bottom, #f79e59 0%, #f47824 100%);
+    padding: 20px;
+    border-bottom: 2px solid #d05404;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Site Title */
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    color: #fff; /* White text for better contrast on the orange background */
+}
+
+/* Logo in header */
+header h1 img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+/* NAVIGATION */
+nav {
+    background-color: #f47824;
+    padding: 10px;
+    border-bottom: 2px solid #d05404;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-right: 15px;
+    font-weight: 500;
+    padding: 6px 8px;
+    /* Slight background hover effect */
+    transition: background-color 0.3s;
+}
+
+nav a:hover {
+    background-color: #d05404;
+    color: #fff; /* Keep text white when hovering on darker orange */
+}
+
+/* MAIN CONTENT AREA */
+main {
+    margin: 20px auto;
+    max-width: 1000px;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-top: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+main h2 {
+    margin-top: 0;
+}
+
+/* ARTICLES (BLOG POSTS) */
+article {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+article h3 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: #f47824; /* Heading color to reinforce the orange theme */
+}
+
+/* FOOTER */
+footer {
+    background: #f47824;
+    color: #fff;
+    border-top: 2px solid #d05404;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+}
+
+footer img {
+    height: 24px;
+    vertical-align: middle;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 20px 0;
+}
+
