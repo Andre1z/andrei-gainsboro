@@ -144,18 +144,31 @@ if ($cssResult) {
 // ---------------------------------------------------------------------
 // Función: Renderiza la navegación primaria
 // ---------------------------------------------------------------------
+/**
+ * Renderiza la navegación primaria.
+ * Solo muestra el enlace "Inicio" si existe una página con ese título.
+ *
+ * @param SQLite3 $db Conexión a la base de datos.
+ * @return string HTML con la navegación.
+ */
 function renderPrimaryNav($db) {
     $navHTML = "<nav class='primary-nav'>";
-    // Siempre se muestra el enlace "Inicio"
-    $active = (isset($_GET['page']) && $_GET['page'] === 'inicio') ? "active" : "";
-    $navHTML .= "<a class='$active' href='?page=inicio'>Inicio</a>";
     
-    // Muestra las páginas de primer nivel excepto "inicio", "blog" y "contacto"
+    // Verifica si existe una página con el título 'inicio'
+    $stmt = $db->prepare("SELECT COUNT(*) AS count FROM pages WHERE title = 'inicio'");
+    $result = $stmt->execute();
+    $row = $result->fetchArray(SQLITE3_ASSOC);
+    if ($row && $row['count'] > 0) {
+        $active = (isset($_GET['page']) && $_GET['page'] === 'inicio') ? "active" : "";
+        $navHTML .= "<a class='$active' href='?page=inicio'>Inicio</a>";
+    }
+    
+    // Muestra las páginas de primer nivel, excepto "inicio", "blog" y "contacto"
     $stmt = $db->prepare("SELECT * FROM pages WHERE parent_id IS NULL AND title NOT IN ('inicio','blog','contacto') ORDER BY title ASC");
     $result = $stmt->execute();
     while ($page = $result->fetchArray(SQLITE3_ASSOC)) {
-        $active = (isset($_GET['page']) && $_GET['page'] === $page['title']) ? "active" : "";
-        $navHTML .= "<a class='$active' href='?page=" . urlencode($page['title']) . "'>" . htmlspecialchars($page['title']) . "</a>";
+         $active = (isset($_GET['page']) && $_GET['page'] === $page['title']) ? "active" : "";
+         $navHTML .= "<a class='$active' href='?page=" . urlencode($page['title']) . "'>" . htmlspecialchars($page['title']) . "</a>";
     }
     
     // Enlaces estáticos para Blog y Contacto
@@ -163,6 +176,7 @@ function renderPrimaryNav($db) {
     $navHTML .= "<a class='$active' href='?page=blog'>Blog</a>";
     $active = (isset($_GET['page']) && $_GET['page'] === 'contacto') ? "active" : "";
     $navHTML .= "<a class='$active' href='?page=contacto'>Contacto</a>";
+    
     $navHTML .= "</nav>";
     return $navHTML;
 }
@@ -180,15 +194,15 @@ function getActiveChain($db, $pageTitle) {
         return $chain;
     }
     while ($page) {
-        array_unshift($chain, $page['id']);
-        if ($page['parent_id']) {
-            $stmt = $db->prepare("SELECT * FROM pages WHERE id = :id");
-            $stmt->bindValue(':id', $page['parent_id'], SQLITE3_INTEGER);
-            $result = $stmt->execute();
-            $page = $result->fetchArray(SQLITE3_ASSOC);
-        } else {
-            break;
-        }
+         array_unshift($chain, $page['id']);
+         if ($page['parent_id']) {
+              $stmt = $db->prepare("SELECT * FROM pages WHERE id = :id");
+              $stmt->bindValue(':id', $page['parent_id'], SQLITE3_INTEGER);
+              $result = $stmt->execute();
+              $page = $result->fetchArray(SQLITE3_ASSOC);
+         } else {
+              break;
+         }
     }
     return $chain;
 }
@@ -202,22 +216,22 @@ function renderSubNav($db, $parentId, $activeChain) {
     $result = $stmt->execute();
     $children = [];
     while ($child = $result->fetchArray(SQLITE3_ASSOC)) {
-        $children[] = $child;
+         $children[] = $child;
     }
     if (empty($children)) {
-        return "";
+         return "";
     }
     $subNavHTML = "<nav class='subnav'>";
     foreach ($children as $child) {
-        $active = in_array($child['id'], $activeChain) ? "active" : "";
-        $subNavHTML .= "<a class='$active' href='?page=" . urlencode($child['title']) . "'>" . htmlspecialchars($child['title']) . "</a>";
+         $active = in_array($child['id'], $activeChain) ? "active" : "";
+         $subNavHTML .= "<a class='$active' href='?page=" . urlencode($child['title']) . "'>" . htmlspecialchars($child['title']) . "</a>";
     }
     $subNavHTML .= "</nav>";
-    // Renderiza submenús recursivamente para los hijos de la cadena activa
+    // Renderiza de forma recursiva los submenús para los hijos de la cadena activa
     foreach ($children as $child) {
-        if (in_array($child['id'], $activeChain)) {
-            $subNavHTML .= renderSubNav($db, $child['id'], $activeChain);
-        }
+         if (in_array($child['id'], $activeChain)) {
+              $subNavHTML .= renderSubNav($db, $child['id'], $activeChain);
+         }
     }
     return $subNavHTML;
 }
@@ -226,81 +240,81 @@ function renderSubNav($db, $parentId, $activeChain) {
 // Función: Obtiene y renderiza la sección "hero" de la página (si existe)
 // ---------------------------------------------------------------------
 function fetchHeroSection($db, $slug) {
-    $stmt = $db->prepare("SELECT * FROM heroes WHERE page_slug = :slug");
-    $stmt->bindValue(':slug', $slug, SQLITE3_TEXT);
-    $result = $stmt->execute();
-    $heroData = $result->fetchArray(SQLITE3_ASSOC);
-    if (!$heroData) {
-        return "";
-    }
-    $heroTitle = htmlspecialchars($heroData['title']);
-    $heroSubtitle = htmlspecialchars($heroData['subtitle']);
-    $bgImage = htmlspecialchars($heroData['background_image']);
-    
-    return "
-    <section class='hero' style='background-image: url(\"$bgImage\");'>
-        <div class='hero-content'>
-            <h2>$heroTitle</h2>
-            <p>$heroSubtitle</p>
-        </div>
-    </section>
-    ";
+     $stmt = $db->prepare("SELECT * FROM heroes WHERE page_slug = :slug");
+     $stmt->bindValue(':slug', $slug, SQLITE3_TEXT);
+     $result = $stmt->execute();
+     $heroData = $result->fetchArray(SQLITE3_ASSOC);
+     if (!$heroData) {
+          return "";
+     }
+     $heroTitle = htmlspecialchars($heroData['title']);
+     $heroSubtitle = htmlspecialchars($heroData['subtitle']);
+     $bgImage = htmlspecialchars($heroData['background_image']);
+     
+     return "
+     <section class='hero' style='background-image: url(\"$bgImage\");'>
+         <div class='hero-content'>
+              <h2>$heroTitle</h2>
+              <p>$heroSubtitle</p>
+         </div>
+     </section>
+     ";
 }
 
 // ---------------------------------------------------------------------
 // Función: Renderiza la estructura completa del sitio público
 // ---------------------------------------------------------------------
 function render(
-    $hero,
-    $content,
-    $primaryNav,
-    $subNav,
-    $theme,
-    $title,
-    $logo,
-    $footerImage,
-    $metaDescription,
-    $metaTags,
-    $metaAuthor,
-    $analyticsUser,
-    $customCssRules
+     $hero,
+     $content,
+     $primaryNav,
+     $subNav,
+     $theme,
+     $title,
+     $logo,
+     $footerImage,
+     $metaDescription,
+     $metaTags,
+     $metaAuthor,
+     $analyticsUser,
+     $customCssRules
 ) {
-    echo "<!DOCTYPE html>\n";
-    echo "<html lang='en'>\n";
-    echo "  <head>\n";
-    echo "      <meta charset='UTF-8'>\n";
-    echo "      <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n";
-    echo "      <title>$title</title>\n";
-    echo "      <meta name='description' content='$metaDescription'>\n";
-    echo "      <meta name='keywords' content='$metaTags'>\n";
-    echo "      <meta name='author' content='$metaAuthor'>\n";
-    echo "      <link rel='stylesheet' href='css/$theme.css'>\n";
-    if (!empty($customCssRules)) {
-        echo "      <style>\n$customCssRules\n      </style>\n";
-    }
-    echo "      <link rel='icon' type='image/svg+xml' href='gainsboro.png'>\n";
-    echo "  </head>\n";
-    echo "  <body>\n";
-    echo "      <header>\n";
-    echo "          <h1>\n";
-    // El enlace en el header se estiliza para no tener decoración (ni underline)
-    echo "              <a href='?page=inicio' style='text-decoration: none;'>\n";
-    echo "                  <img src=\"gainsboro.png\" alt=\"Site Logo\"> $title\n";
-    echo "              </a>\n";
-    echo "          </h1>\n";
-    echo "      </header>\n";
-    echo "      $primaryNav\n";
-    echo "      $subNav\n";
-    if (!empty($hero)) {
-        echo $hero;
-    }
-    echo "      <main>\n$content\n      </main>\n";
-    echo "      <footer>\n";
-    echo "          &copy; " . date('Y') . " <img src=\"gainsboro.png\" alt=\"Footer Logo\"> $title\n";
-    echo "      </footer>\n";
-    echo "      <script src=\"https://ghostwhite.jocarsa.com/analytics.js?user=$analyticsUser\"></script>\n";
-    echo "  </body>\n";
-    echo "</html>\n";
+     echo "<!DOCTYPE html>\n";
+     echo "<html lang='en'>\n";
+     echo "  <head>\n";
+     echo "      <meta charset='UTF-8'>\n";
+     echo "      <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n";
+     echo "      <title>$title</title>\n";
+     echo "      <meta name='description' content='$metaDescription'>\n";
+     echo "      <meta name='keywords' content='$metaTags'>\n";
+     echo "      <meta name='author' content='$metaAuthor'>\n";
+     echo "      <link rel='stylesheet' href='css/$theme.css'>\n";
+     if (!empty($customCssRules)) {
+          echo "      <style>\n$customCssRules\n      </style>\n";
+     }
+     echo "      <link rel='icon' type='image/svg+xml' href='gainsboro.png'>\n";
+     echo "  </head>\n";
+     echo "  <body>\n";
+     echo "      <header>\n";
+     echo "          <h1>\n";
+     // Se agrega style inline al enlace para remover cualquier decoración (underline)
+     echo "              <a href='?page=inicio' style='text-decoration: none;'>\n";
+     echo "                  <img src=\"gainsboro.png\" alt=\"Site Logo\"> $title\n";
+     echo "              </a>\n";
+     echo "          </h1>\n";
+     echo "      </header>\n";
+     echo "      $primaryNav\n";
+     echo "      $subNav\n";
+     if (!empty($hero)) {
+          echo $hero;
+     }
+     echo "      <main>\n$content\n      </main>\n";
+     echo "      <footer>\n";
+     echo "          &copy; " . date('Y') . " <img src=\"gainsboro.png\" alt=\"Footer Logo\"> $title\n";
+     echo "      </footer>\n";
+     echo "      <script src=\"https://ghostwhite.jocarsa.com/analytics.js?user=$analyticsUser\"></script>\n";
+     echo "  </body>\n";
+     echo "</html>\n";
 }
 
 // ---------------------------------------------------------------------
@@ -308,121 +322,121 @@ function render(
 // ---------------------------------------------------------------------
 $pageParam = $_GET['page'] ?? 'inicio';
 
-// Obtiene la cadena activa (IDs de las páginas) para la subnavegación
+// Obtiene la cadena activa (IDs de las páginas) para la subnavegación.
 $activeChain = getActiveChain($db, $pageParam);
 
-// Renderiza la navegación primaria
+// Renderiza la navegación primaria.
 $primaryNav = renderPrimaryNav($db);
 
-// Renderiza la subnavegación, si corresponde
+// Renderiza la subnavegación (si existe).
 $subNav = "";
 if (!empty($activeChain)) {
-    $subNav = renderSubNav($db, $activeChain[0], $activeChain);
+     $subNav = renderSubNav($db, $activeChain[0], $activeChain);
 }
 
 // ---------------------------------------------------------------------
-// Procesamiento de la solicitud basado en "page"
+// Procesamiento de la solicitud basado en el valor de "page"
 // ---------------------------------------------------------------------
 if ($pageParam === 'blog') {
-    // Procesa y renderiza las entradas del blog.
-    $blogResult = $db->query("SELECT title, content, created_at FROM blog ORDER BY created_at DESC");
-    $blogContent = "<h2>Blog</h2>\n";
-    while ($entry = $blogResult->fetchArray(SQLITE3_ASSOC)) {
-        $blogContent .= "<article>\n";
-        $blogContent .= "  <h3>" . htmlspecialchars($entry['title']) . "</h3>\n";
-        $blogContent .= "  <time>" . htmlspecialchars($entry['created_at']) . "</time>\n";
-        $blogContent .= "  <div>" . $entry['content'] . "</div>\n";
-        $blogContent .= "</article>\n<hr>\n";
-    }
-    $heroSection = fetchHeroSection($db, 'blog');
-    render($heroSection, $blogContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+     // Procesa y renderiza las entradas del blog.
+     $blogResult = $db->query("SELECT title, content, created_at FROM blog ORDER BY created_at DESC");
+     $blogContent = "<h2>Blog</h2>\n";
+     while ($entry = $blogResult->fetchArray(SQLITE3_ASSOC)) {
+          $blogContent .= "<article>\n";
+          $blogContent .= "  <h3>" . htmlspecialchars($entry['title']) . "</h3>\n";
+          $blogContent .= "  <time>" . htmlspecialchars($entry['created_at']) . "</time>\n";
+          $blogContent .= "  <div>" . $entry['content'] . "</div>\n";
+          $blogContent .= "</article>\n<hr>\n";
+     }
+     $heroSection = fetchHeroSection($db, 'blog');
+     render($heroSection, $blogContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } elseif ($pageParam === 'contacto') {
-    // Procesa y renderiza el formulario de contacto.
-    $contactContent = "<h2>Contacto</h2>";
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $name    = trim($_POST['name'] ?? '');
-        $email   = trim($_POST['email'] ?? '');
-        $subject = trim($_POST['subject'] ?? '');
-        $message = trim($_POST['message'] ?? '');
-        if ($name && $email && $subject && $message) {
-            $stmt = $db->prepare("INSERT INTO contact (name, email, subject, message) VALUES (:n, :e, :s, :m)");
-            $stmt->bindValue(':n', $name, SQLITE3_TEXT);
-            $stmt->bindValue(':e', $email, SQLITE3_TEXT);
-            $stmt->bindValue(':s', $subject, SQLITE3_TEXT);
-            $stmt->bindValue(':m', $message, SQLITE3_TEXT);
-            $stmt->execute();
-            $contactContent .= "<p>¡Gracias por tu mensaje, $name! Te responderemos pronto.</p>";
-        } else {
-            $contactContent .= "<p style='color:red;'>Por favor, rellena todos los campos.</p>";
-        }
-    }
-    $contactContent .= "
-    <form method='post'>
-        <label for='name'>Nombre Completo:</label><br>
-        <input type='text' id='name' name='name' required><br><br>
-        <label for='email'>Correo Electrónico:</label><br>
-        <input type='email' id='email' name='email' required><br><br>
-        <label for='subject'>Asunto:</label><br>
-        <input type='text' id='subject' name='subject' required><br><br>
-        <label for='message'>Mensaje:</label><br>
-        <textarea id='message' name='message' rows='5' required></textarea><br><br>
-        <button type='submit'>Enviar</button>
-    </form>";
-    $heroSection = fetchHeroSection($db, 'contacto');
-    render($heroSection, $contactContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+     // Procesa y renderiza el formulario de contacto.
+     $contactContent = "<h2>Contacto</h2>";
+     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+          $name    = trim($_POST['name'] ?? '');
+          $email   = trim($_POST['email'] ?? '');
+          $subject = trim($_POST['subject'] ?? '');
+          $message = trim($_POST['message'] ?? '');
+          if ($name && $email && $subject && $message) {
+               $stmt = $db->prepare("INSERT INTO contact (name, email, subject, message) VALUES (:n, :e, :s, :m)");
+               $stmt->bindValue(':n', $name, SQLITE3_TEXT);
+               $stmt->bindValue(':e', $email, SQLITE3_TEXT);
+               $stmt->bindValue(':s', $subject, SQLITE3_TEXT);
+               $stmt->bindValue(':m', $message, SQLITE3_TEXT);
+               $stmt->execute();
+               $contactContent .= "<p>¡Gracias por tu mensaje, $name! Te responderemos pronto.</p>";
+          } else {
+               $contactContent .= "<p style='color:red;'>Por favor, rellena todos los campos.</p>";
+          }
+     }
+     $contactContent .= "
+     <form method='post'>
+          <label for='name'>Nombre Completo:</label><br>
+          <input type='text' id='name' name='name' required><br><br>
+          <label for='email'>Correo Electrónico:</label><br>
+          <input type='email' id='email' name='email' required><br><br>
+          <label for='subject'>Asunto:</label><br>
+          <input type='text' id='subject' name='subject' required><br><br>
+          <label for='message'>Mensaje:</label><br>
+          <textarea id='message' name='message' rows='5' required></textarea><br><br>
+          <button type='submit'>Enviar</button>
+     </form>";
+     $heroSection = fetchHeroSection($db, 'contacto');
+     render($heroSection, $contactContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } else {
-    // Procesa y renderiza el contenido de una página normal.
-    $stmt = $db->prepare("SELECT content FROM pages WHERE title = :title");
-    $stmt->bindValue(':title', $pageParam, SQLITE3_TEXT);
-    $result = $stmt->execute();
-    $pageData = $result->fetchArray(SQLITE3_ASSOC);
-    if ($pageData) {
-        $pageContent = "<h2>" . htmlspecialchars($pageParam) . "</h2>\n<div>" . $pageData['content'] . "</div>\n";
-        $heroSection = fetchHeroSection($db, $pageParam);
-        render($heroSection, $pageContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
-    } else {
-        render("", "<h2>Página No Encontrada</h2>", $primaryNav, "", $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
-    }
+     // Procesa y renderiza el contenido de una página normal.
+     $stmt = $db->prepare("SELECT content FROM pages WHERE title = :title");
+     $stmt->bindValue(':title', $pageParam, SQLITE3_TEXT);
+     $result = $stmt->execute();
+     $pageData = $result->fetchArray(SQLITE3_ASSOC);
+     if ($pageData) {
+          $pageContent = "<h2>" . htmlspecialchars($pageParam) . "</h2>\n<div>" . $pageData['content'] . "</div>\n";
+          $heroSection = fetchHeroSection($db, $pageParam);
+          render($heroSection, $pageContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+     } else {
+          render("", "<h2>Página No Encontrada</h2>", $primaryNav, "", $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+     }
 }
 
 // ---------------------------------------------------------------------
 // Función: Genera el archivo sitemap.xml en cada carga
 // ---------------------------------------------------------------------
 function generateSitemap($db) {
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443)
+     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443)
                 ? "https://"
                 : "http://";
-    $domain = $protocol . $_SERVER['HTTP_HOST'];
-    $urls = [];
-    $urls[] = ['loc' => $domain . '/?page=inicio', 'lastmod' => date('Y-m-d')];
-    $urls[] = ['loc' => $domain . '/?page=blog', 'lastmod' => date('Y-m-d')];
-    $urls[] = ['loc' => $domain . '/?page=contacto', 'lastmod' => date('Y-m-d')];
-    $result = $db->query("SELECT title FROM pages");
-    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-        $pageEncoded = urlencode($row['title']);
-        $urls[] = ['loc' => $domain . '/?page=' . $pageEncoded, 'lastmod' => date('Y-m-d')];
-    }
-    $result = $db->query("SELECT id, created_at FROM blog");
-    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-        $urls[] = [
-            'loc' => $domain . '/?page=blog&post=' . $row['id'],
-            'lastmod' => date('Y-m-d', strtotime($row['created_at']))
-        ];
-    }
-    $xml = new DOMDocument('1.0', 'UTF-8');
-    $xml->formatOutput = true;
-    $urlset = $xml->createElement('urlset');
-    $urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
-    foreach ($urls as $entry) {
-        $url = $xml->createElement('url');
-        $loc = $xml->createElement('loc', htmlspecialchars($entry['loc']));
-        $url->appendChild($loc);
-        $lastmod = $xml->createElement('lastmod', $entry['lastmod']);
-        $url->appendChild($lastmod);
-        $urlset->appendChild($url);
-    }
-    $xml->appendChild($urlset);
-    $xml->save('sitemap.xml');
+     $domain = $protocol . $_SERVER['HTTP_HOST'];
+     $urls = [];
+     $urls[] = ['loc' => $domain . '/?page=inicio', 'lastmod' => date('Y-m-d')];
+     $urls[] = ['loc' => $domain . '/?page=blog', 'lastmod' => date('Y-m-d')];
+     $urls[] = ['loc' => $domain . '/?page=contacto', 'lastmod' => date('Y-m-d')];
+     $result = $db->query("SELECT title FROM pages");
+     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+          $pageEncoded = urlencode($row['title']);
+          $urls[] = ['loc' => $domain . '/?page=' . $pageEncoded, 'lastmod' => date('Y-m-d')];
+     }
+     $result = $db->query("SELECT id, created_at FROM blog");
+     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+          $urls[] = [
+               'loc' => $domain . '/?page=blog&post=' . $row['id'],
+               'lastmod' => date('Y-m-d', strtotime($row['created_at']))
+          ];
+     }
+     $xml = new DOMDocument('1.0', 'UTF-8');
+     $xml->formatOutput = true;
+     $urlset = $xml->createElement('urlset');
+     $urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+     foreach ($urls as $entry) {
+          $url = $xml->createElement('url');
+          $loc = $xml->createElement('loc', htmlspecialchars($entry['loc']));
+          $url->appendChild($loc);
+          $lastmod = $xml->createElement('lastmod', $entry['lastmod']);
+          $url->appendChild($lastmod);
+          $urlset->appendChild($url);
+     }
+     $xml->appendChild($urlset);
+     $xml->save('sitemap.xml');
 }
 generateSitemap($db);
 ?>
