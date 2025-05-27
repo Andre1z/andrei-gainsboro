@@ -144,13 +144,6 @@ if ($cssResult) {
 // ---------------------------------------------------------------------
 // Función: Renderiza la navegación primaria
 // ---------------------------------------------------------------------
-/**
- * Renderiza la navegación primaria.
- * Solo muestra el enlace "Inicio" si existe una página con ese título.
- *
- * @param SQLite3 $db Conexión a la base de datos.
- * @return string HTML con la navegación.
- */
 function renderPrimaryNav($db) {
     $navHTML = "<nav class='primary-nav'>";
     
@@ -283,8 +276,9 @@ function render(
      echo "<html lang='en'>\n";
      echo "  <head>\n";
      echo "      <meta charset='UTF-8'>\n";
-     // La siguiente línea es la etiqueta viewport para adaptar el sitio a dispositivos móviles
      echo "      <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n";
+     // Cargamos el script de reCAPTCHA para que esté disponible (se usa en la sección de contacto)
+     echo "      <script src='https://www.google.com/recaptcha/api.js' async defer></script>\n";
      echo "      <title>$title</title>\n";
      echo "      <meta name='description' content='$metaDescription'>\n";
      echo "      <meta name='keywords' content='$metaTags'>\n";
@@ -359,7 +353,18 @@ if ($pageParam === 'blog') {
           $email   = trim($_POST['email'] ?? '');
           $subject = trim($_POST['subject'] ?? '');
           $message = trim($_POST['message'] ?? '');
-          if ($name && $email && $subject && $message) {
+          
+          // Verificar respuesta de reCAPTCHA
+          $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
+          $secretKey = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"; // Clave secreta de prueba
+          $userIP = $_SERVER['REMOTE_ADDR'];
+          $url = "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}&remoteip={$userIP}";
+          $request = file_get_contents($url);
+          $responseData = json_decode($request);
+          
+          if (!$responseData->success) {
+               $contactContent .= "<p style='color:red;'>Por favor, verifica que eres humano.</p>";
+          } elseif ($name && $email && $subject && $message) {
                $stmt = $db->prepare("INSERT INTO contact (name, email, subject, message) VALUES (:n, :e, :s, :m)");
                $stmt->bindValue(':n', $name, SQLITE3_TEXT);
                $stmt->bindValue(':e', $email, SQLITE3_TEXT);
@@ -371,18 +376,21 @@ if ($pageParam === 'blog') {
                $contactContent .= "<p style='color:red;'>Por favor, rellena todos los campos.</p>";
           }
      }
+     // Incluimos el widget de reCAPTCHA en el formulario con la clave de prueba
      $contactContent .= "
-     <form method='post'>
-          <label for='name'>Nombre Completo:</label><br>
-          <input type='text' id='name' name='name' required><br><br>
-          <label for='email'>Correo Electrónico:</label><br>
-          <input type='email' id='email' name='email' required><br><br>
-          <label for='subject'>Asunto:</label><br>
-          <input type='text' id='subject' name='subject' required><br><br>
-          <label for='message'>Mensaje:</label><br>
-          <textarea id='message' name='message' rows='5' required></textarea><br><br>
-          <button type='submit'>Enviar</button>
-     </form>";
+         <form method='post'>
+              <label for='name'>Nombre Completo:</label><br>
+              <input type='text' id='name' name='name' required><br><br>
+              <label for='email'>Correo Electrónico:</label><br>
+              <input type='email' id='email' name='email' required><br><br>
+              <label for='subject'>Asunto:</label><br>
+              <input type='text' id='subject' name='subject' required><br><br>
+              <label for='message'>Mensaje:</label><br>
+              <textarea id='message' name='message' rows='5' required></textarea><br><br>
+              <div class='g-recaptcha' data-sitekey='6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'></div>
+              <br>
+              <button type='submit'>Enviar</button>
+         </form>";
      $heroSection = fetchHeroSection($db, 'contacto');
      render($heroSection, $contactContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } else {
