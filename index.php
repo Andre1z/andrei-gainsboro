@@ -1,25 +1,5 @@
 <?php
-/**
- * Archivo: index.php
- *
- * Descripción:
- *   Este archivo es el punto de entrada del sitio público del CMS.
- *   Se encarga de:
- *     - Inicializar la conexión a la base de datos SQLite.
- *     - Crear las tablas necesarias (pages, blog, config, contact, heroes,
- *       social_media, custom_css, etc.) automáticamente si no existen.
- *     - Insertar valores de configuración por defecto.
- *     - Recuperar la configuración almacenada.
- *     - Detectar el tema activo y el CSS personalizado.
- *     - Renderizar dinámicamente el contenido (páginas, blog, contacto, sección hero)
- *       en función del parámetro GET "page".
- *     - Generar la navegación primaria y secundaria.
- *     - Crear un sitemap.xml para la indexación del sitio.
- *     - Incluir el script de analytics.
- *
- * @package CMS-ANDREI
- */
-
+session_start(); // Inicia la sesión para usarla en la verificación del captcha y otros procesos.
 require_once 'config.php';
 
 // Inicializa la base de datos SQLite3
@@ -277,8 +257,6 @@ function render(
      echo "  <head>\n";
      echo "      <meta charset='UTF-8'>\n";
      echo "      <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n";
-     // Cargamos el script de reCAPTCHA para que esté disponible (se usa en la sección de contacto)
-     echo "      <script src='https://www.google.com/recaptcha/api.js' async defer></script>\n";
      echo "      <title>$title</title>\n";
      echo "      <meta name='description' content='$metaDescription'>\n";
      echo "      <meta name='keywords' content='$metaTags'>\n";
@@ -292,7 +270,6 @@ function render(
      echo "  <body>\n";
      echo "      <header>\n";
      echo "          <h1>\n";
-     // Se agrega style inline al enlace para remover cualquier decoración (underline)
      echo "              <a href='?page=inicio' style='text-decoration: none;'>\n";
      echo "                  <img src=\"gainsboro.png\" alt=\"Site Logo\"> $title\n";
      echo "              </a>\n";
@@ -346,24 +323,18 @@ if ($pageParam === 'blog') {
      $heroSection = fetchHeroSection($db, 'blog');
      render($heroSection, $blogContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } elseif ($pageParam === 'contacto') {
-     // Procesa y renderiza el formulario de contacto.
+     // Procesa y renderiza el formulario de contacto con verificación del captcha interno.
      $contactContent = "<h2>Contacto</h2>";
      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $name    = trim($_POST['name'] ?? '');
           $email   = trim($_POST['email'] ?? '');
           $subject = trim($_POST['subject'] ?? '');
           $message = trim($_POST['message'] ?? '');
+          $userCaptcha = trim($_POST['captcha_answer'] ?? '');
           
-          // Verificar respuesta de reCAPTCHA
-          $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
-          $secretKey = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"; // Clave secreta de prueba
-          $userIP = $_SERVER['REMOTE_ADDR'];
-          $url = "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}&remoteip={$userIP}";
-          $request = file_get_contents($url);
-          $responseData = json_decode($request);
-          
-          if (!$responseData->success) {
-               $contactContent .= "<p style='color:red;'>Por favor, verifica que eres humano.</p>";
+          // Verifica que la respuesta del captcha matemático (almacenada en $_SESSION['captcha_answer']) sea correcta.
+          if (!isset($_SESSION['captcha_answer']) || $userCaptcha != $_SESSION['captcha_answer']) {
+               $contactContent .= "<p style='color:red;'>La respuesta al captcha es incorrecta. Por favor, inténtalo de nuevo.</p>";
           } elseif ($name && $email && $subject && $message) {
                $stmt = $db->prepare("INSERT INTO contact (name, email, subject, message) VALUES (:n, :e, :s, :m)");
                $stmt->bindValue(':n', $name, SQLITE3_TEXT);
@@ -376,21 +347,29 @@ if ($pageParam === 'blog') {
                $contactContent .= "<p style='color:red;'>Por favor, rellena todos los campos.</p>";
           }
      }
-     // Incluimos el widget de reCAPTCHA en el formulario con la clave de prueba
+     // Se incluye el widget del captcha matemático generado internamente.
      $contactContent .= "
          <form method='post'>
               <label for='name'>Nombre Completo:</label><br>
               <input type='text' id='name' name='name' required><br><br>
+              
               <label for='email'>Correo Electrónico:</label><br>
               <input type='email' id='email' name='email' required><br><br>
+              
               <label for='subject'>Asunto:</label><br>
               <input type='text' id='subject' name='subject' required><br><br>
+              
               <label for='message'>Mensaje:</label><br>
               <textarea id='message' name='message' rows='5' required></textarea><br><br>
-              <div class='g-recaptcha' data-sitekey='6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'></div>
-              <br>
+              
+              <!-- Captcha matemático generado internamente -->
+              <img src='captcha.php' alt='Captcha'><br><br>
+              <label for='captcha_answer'>Resuelve la operación:</label><br>
+              <input type='text' id='captcha_answer' name='captcha_answer' required><br><br>
+              
               <button type='submit'>Enviar</button>
          </form>";
+     
      $heroSection = fetchHeroSection($db, 'contacto');
      render($heroSection, $contactContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } else {
