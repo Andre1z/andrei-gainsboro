@@ -1,0 +1,148 @@
+/* lightblue.css - Tema Light Blue para Andrei | Gainsboro CMS */
+
+/* Estilos generales */
+body {
+    background-color: #e0f7fa; /* Fondo azul muy claro */
+    color: #01579b;            /* Texto en azul oscuro */
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* Encabezado */
+header {
+    background-color: #0288d1; /* Azul medio */
+    border-bottom: 1px solid #0277bd; /* Azul ligeramente más oscuro para el borde */
+    padding: 1rem;
+    color: #ffffff;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+/* Navegación principal */
+nav.primary-nav {
+    background-color: #039be5; /* Azul vivo para la navegación */
+    padding: 0.75rem 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
+nav.primary-nav a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+nav.primary-nav a:hover,
+nav.primary-nav a.active {
+    color: #81d4fa; /* Azul claro al pasar el mouse o en activo */
+}
+
+/* Navegación secundaria */
+nav.subnav {
+    background-color: #4fc3f7; /* Azul más claro */
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+nav.subnav a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+nav.subnav a:hover,
+nav.subnav a.active {
+    color: #b3e5fc; /* Tonos aún más claros para el hover */
+}
+
+/* Área principal */
+main {
+    padding: 1.5rem;
+}
+
+/* Sección Hero */
+section.hero {
+    background-color: #81d4fa; /* Fondo azul claro */
+    background-size: cover;
+    background-position: center;
+    padding: 2rem;
+    position: relative;
+    color: #01579b;
+}
+
+.hero-content {
+    background-color: rgba(255, 255, 255, 0.8); /* Contenedor semitransparente */
+    padding: 1.5rem;
+    border-radius: 5px;
+    color: #01579b;
+}
+
+/* Formularios y botones */
+form {
+    margin: 1.5rem 0;
+}
+
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+    width: 100%;
+    padding: 0.75rem;
+    margin: 0.5rem 0 1rem;
+    border: 1px solid #4fc3f7;
+    background-color: #e1f5fe; /* Tonos azulados muy claros */
+    color: #01579b;
+    border-radius: 3px;
+}
+
+button {
+    background-color: #0288d1;
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0277bd;
+}
+
+/* Pie de página */
+footer {
+    background-color: #0288d1;
+    color: #ffffff;
+    text-align: center;
+    padding: 1rem;
+    border-top: 1px solid #0277bd;
+}
+
+/* Enlaces generales */
+a {
+    transition: color 0.3s ease;
+}
+
+/* Imágenes */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    nav.primary-nav,
+    nav.subnav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,150 @@
+/*
+forest.css - Tema de Bosque para Andrei | Gainsboro CMS
+*/
+
+/* Estilos generales */
+body {
+    background-color: #F0F8E2; /* Fondo en tono verde claro */
+    color: #2F4F4F;            /* Texto en gris oscuro con matices verdes */
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* Encabezado */
+header {
+    background-color: #2E7D32; /* Verde intenso, estilo bosque */
+    border-bottom: 1px solid #1B5E20; /* Borde en verde más oscuro */
+    padding: 1rem;
+    color: #FFFFFF;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+/* Navegación principal */
+nav.primary-nav {
+    background-color: #4CAF50; /* Verde medio */
+    padding: 0.75rem 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
+nav.primary-nav a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+nav.primary-nav a:hover,
+nav.primary-nav a.active {
+    color: #C8E6C9; /* Verde claro para resaltar al pasar el cursor */
+}
+
+/* Navegación secundaria */
+nav.subnav {
+    background-color: #81C784; /* Verde claro */
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+nav.subnav a {
+    color: #FFFFFF;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+nav.subnav a:hover,
+nav.subnav a.active {
+    color: #DCEDC8;
+}
+
+/* Área principal */
+main {
+    padding: 1.5rem;
+}
+
+/* Sección Hero */
+section.hero {
+    background-color: #A5D6A7; /* Fondo verde suave */
+    background-size: cover;
+    background-position: center;
+    padding: 2rem;
+    position: relative;
+    color: #1B5E20;
+}
+
+.hero-content {
+    background-color: rgba(255, 255, 255, 0.8); /* Contenedor semitransparente */
+    padding: 1.5rem;
+    border-radius: 5px;
+    color: #2E7D32;
+}
+
+/* Formularios y botones */
+form {
+    margin: 1.5rem 0;
+}
+
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+    width: 100%;
+    padding: 0.75rem;
+    margin: 0.5rem 0 1rem;
+    border: 1px solid #81C784;
+    background-color: #F1F8E9;
+    color: #2E7D32;
+    border-radius: 3px;
+}
+
+button {
+    background-color: #2E7D32;
+    color: #FFFFFF;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #1B5E20;
+}
+
+/* Pie de página */
+footer {
+    background-color: #2E7D32;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 1rem;
+    border-top: 1px solid #1B5E20;
+}
+
+/* Enlaces generales */
+a {
+    transition: color 0.3s ease;
+}
+
+/* Imágenes */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    nav.primary-nav,
+    nav.subnav {
+         flex-direction: column;
+         align-items: flex-start;
+    }
+}

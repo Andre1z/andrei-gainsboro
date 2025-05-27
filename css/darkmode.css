@@ -1,0 +1,145 @@
+/* darkmode.css - Tema oscuro para Andrei | Gainsboro CMS */
+
+/* Estilos generales */
+body {
+    background-color: #121212; /* Fondo oscuro */
+    color: #E0E0E0;            /* Texto claro */
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* Encabezado */
+header {
+    background-color: #1F1F1F;
+    border-bottom: 1px solid #333;
+    padding: 1rem;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+/* Navegación principal */
+nav.primary-nav {
+    background-color: #1F1F1F;
+    padding: 0.75rem 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
+nav.primary-nav a {
+    color: #E0E0E0;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+nav.primary-nav a:hover,
+nav.primary-nav a.active {
+    color: #BB86FC;
+}
+
+/* Subnavegación */
+nav.subnav {
+    background-color: #181818;
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+nav.subnav a {
+    color: #E0E0E0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+nav.subnav a:hover,
+nav.subnav a.active {
+    color: #BB86FC;
+}
+
+/* Área principal */
+main {
+    padding: 1.5rem;
+}
+
+/* Sección Hero */
+section.hero {
+    background-size: cover;
+    background-position: center;
+    color: #F0F0F0;
+    padding: 2rem;
+    position: relative;
+}
+
+.hero-content {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 1.5rem;
+    border-radius: 5px;
+}
+
+/* Formularios y botones */
+form {
+    margin: 1.5rem 0;
+}
+
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+    width: 100%;
+    padding: 0.75rem;
+    margin: 0.5rem 0 1rem;
+    border: 1px solid #444;
+    background-color: #1F1F1F;
+    color: #E0E0E0;
+    border-radius: 3px;
+}
+
+button {
+    background-color: #BB86FC;
+    color: #121212;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #9E68DC;
+}
+
+/* Pie de página */
+footer {
+    background-color: #1F1F1F;
+    color: #E0E0E0;
+    text-align: center;
+    padding: 1rem;
+    border-top: 1px solid #333;
+}
+
+/* Enlaces generales */
+a {
+    transition: color 0.3s ease;
+}
+
+/* Imágenes */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    nav.primary-nav,
+    nav.subnav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
