@@ -283,6 +283,7 @@ function render(
      echo "<html lang='en'>\n";
      echo "  <head>\n";
      echo "      <meta charset='UTF-8'>\n";
+     // La siguiente línea es la etiqueta viewport para adaptar el sitio a dispositivos móviles
      echo "      <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n";
      echo "      <title>$title</title>\n";
      echo "      <meta name='description' content='$metaDescription'>\n";
