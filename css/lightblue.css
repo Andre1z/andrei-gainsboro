@@ -1,147 +1,116 @@
 /* lightblue.css - Tema Light Blue para Andrei | Gainsboro CMS */
 
-/* Estilos generales */
-body {
-    background-color: #e0f7fa; /* Fondo azul muy claro */
-    color: #01579b;            /* Texto en azul oscuro */
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+/* Reset y configuración base */
+html, body {
     margin: 0;
     padding: 0;
-    line-height: 1.6;
+    font-family: Arial, sans-serif;
+    background-color: #e0f7fa; /* Fondo azul muy claro */
+    color: #01579b;           /* Texto en azul oscuro */
 }
 
-/* Encabezado */
+/* HEADER */
 header {
-    background-color: #0288d1; /* Azul medio */
-    border-bottom: 1px solid #0277bd; /* Azul ligeramente más oscuro para el borde */
-    padding: 1rem;
-    color: #ffffff;
+    background-color: #0288d1; /* Azul medio para el header */
+    padding: 20px;
+    border-bottom: 2px solid #0277bd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 header h1 {
     margin: 0;
-    font-size: 2rem;
-}
-
-/* Navegación principal */
-nav.primary-nav {
-    background-color: #039be5; /* Azul vivo para la navegación */
-    padding: 0.75rem 1rem;
+    font-size: 1.8rem;
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    color: #fff;
 }
 
-nav.primary-nav a {
-    color: #ffffff;
+header h1 img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+/* NAVIGATION */
+nav {
+    background-color: #039be5; /* Azul vivo para la barra de navegación */
+    padding: 10px;
+    border-bottom: 2px solid #0277bd;
+}
+
+nav a {
+    color: #fff;
     text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s ease;
+    margin-right: 15px;
+    font-weight: 500;
+    padding: 6px 8px;
+    transition: background-color 0.3s;
 }
 
-nav.primary-nav a:hover,
-nav.primary-nav a.active {
-    color: #81d4fa; /* Azul claro al pasar el mouse o en activo */
-}
-
-/* Navegación secundaria */
-nav.subnav {
-    background-color: #4fc3f7; /* Azul más claro */
-    padding: 0.5rem 1rem;
-    display: flex;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-}
-
-nav.subnav a {
-    color: #ffffff;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-nav.subnav a:hover,
-nav.subnav a.active {
-    color: #b3e5fc; /* Tonos aún más claros para el hover */
-}
-
-/* Área principal */
-main {
-    padding: 1.5rem;
-}
-
-/* Sección Hero */
-section.hero {
-    background-color: #81d4fa; /* Fondo azul claro */
-    background-size: cover;
-    background-position: center;
-    padding: 2rem;
-    position: relative;
-    color: #01579b;
-}
-
-.hero-content {
-    background-color: rgba(255, 255, 255, 0.8); /* Contenedor semitransparente */
-    padding: 1.5rem;
-    border-radius: 5px;
-    color: #01579b;
-}
-
-/* Formularios y botones */
-form {
-    margin: 1.5rem 0;
-}
-
-input[type="text"],
-input[type="email"],
-textarea,
-select {
-    width: 100%;
-    padding: 0.75rem;
-    margin: 0.5rem 0 1rem;
-    border: 1px solid #4fc3f7;
-    background-color: #e1f5fe; /* Tonos azulados muy claros */
-    color: #01579b;
-    border-radius: 3px;
-}
-
-button {
-    background-color: #0288d1;
-    color: #ffffff;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
+nav a:hover {
     background-color: #0277bd;
 }
 
-/* Pie de página */
+/* Estilo adicional para imágenes en los enlaces */
+nav a img {
+    width: 28px;
+}
+
+/* MAIN CONTENT AREA */
+main {
+    margin: 20px auto;
+    max-width: 1000px;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-top: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+main h2 {
+    margin-top: 0;
+}
+
+/* ARTICLES (BLOG POSTS) */
+article {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+article h3 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: #0288d1;
+}
+
+/* FOOTER */
 footer {
     background-color: #0288d1;
-    color: #ffffff;
+    color: #fff;
+    border-top: 2px solid #0277bd;
     text-align: center;
-    padding: 1rem;
-    border-top: 1px solid #0277bd;
+    padding: 20px;
+    font-size: 0.9rem;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Enlaces generales */
-a {
-    transition: color 0.3s ease;
+/* Estilo adicional para imágenes en el footer */
+footer img {
+    height: 20px;
+    vertical-align: middle;
 }
 
-/* Imágenes */
-img {
-    max-width: 100%;
-    height: auto;
+/* HR */
+hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 20px 0;
 }
 
-/* Ajustes responsivos */
+/* RESPONSIVE */
 @media (max-width: 768px) {
-    nav.primary-nav,
-    nav.subnav {
+    nav {
+        display: flex;
         flex-direction: column;
         align-items: flex-start;
     }

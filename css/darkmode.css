@@ -1,145 +1,108 @@
-/* darkmode.css - Tema oscuro para Andrei | Gainsboro CMS */
+/* darkmode.css - Tema oscuro */
 
-/* Estilos generales */
-body {
-    background-color: #121212; /* Fondo oscuro */
-    color: #E0E0E0;            /* Texto claro */
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+/* Reset y configuración base */
+html, body {
     margin: 0;
     padding: 0;
-    line-height: 1.6;
+    font-family: Arial, sans-serif;
+    color: #E0E0E0;
+    background-color: #121212;
 }
 
-/* Encabezado */
+/* HEADER */
 header {
     background-color: #1F1F1F;
-    border-bottom: 1px solid #333;
-    padding: 1rem;
+    padding: 20px;
+    border-bottom: 2px solid #333;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 header h1 {
     margin: 0;
-    font-size: 2rem;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    color: #E0E0E0;
 }
 
-/* Navegación principal */
-nav.primary-nav {
+header h1 img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+/* NAVIGATION */
+nav {
     background-color: #1F1F1F;
-    padding: 0.75rem 1rem;
-    display: flex;
-    gap: 1rem;
+    padding: 10px;
+    border-bottom: 2px solid #333;
 }
 
-nav.primary-nav a {
+nav a {
     color: #E0E0E0;
     text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s ease;
+    margin-right: 15px;
+    font-weight: 500;
+    padding: 6px 8px;
+    transition: background-color 0.3s;
 }
 
-nav.primary-nav a:hover,
-nav.primary-nav a.active {
-    color: #BB86FC;
+nav a:hover {
+    background-color: #333;
 }
 
-/* Subnavegación */
-nav.subnav {
-    background-color: #181818;
-    padding: 0.5rem 1rem;
-    display: flex;
-    gap: 0.5rem;
-    font-size: 0.9rem;
+/* Estilo de imagen en navegación */
+nav a img {
+    width: 28px;
 }
 
-nav.subnav a {
-    color: #E0E0E0;
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-nav.subnav a:hover,
-nav.subnav a.active {
-    color: #BB86FC;
-}
-
-/* Área principal */
+/* MAIN CONTENT AREA */
 main {
-    padding: 1.5rem;
-}
-
-/* Sección Hero */
-section.hero {
-    background-size: cover;
-    background-position: center;
-    color: #F0F0F0;
-    padding: 2rem;
-    position: relative;
-}
-
-.hero-content {
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 1.5rem;
-    border-radius: 5px;
-}
-
-/* Formularios y botones */
-form {
-    margin: 1.5rem 0;
-}
-
-input[type="text"],
-input[type="email"],
-textarea,
-select {
-    width: 100%;
-    padding: 0.75rem;
-    margin: 0.5rem 0 1rem;
+    margin: 20px auto;
+    max-width: 1000px;
+    background-color: #121212;
+    padding: 20px;
     border: 1px solid #444;
-    background-color: #1F1F1F;
-    color: #E0E0E0;
-    border-radius: 3px;
+    border-top: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-button {
-    background-color: #BB86FC;
-    color: #121212;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 3px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
+main h2 {
+    margin-top: 0;
 }
 
-button:hover {
-    background-color: #9E68DC;
+/* ARTICLES */
+article {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #555;
 }
 
-/* Pie de página */
+article h3 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: #BB86FC;
+}
+
+/* FOOTER */
 footer {
     background-color: #1F1F1F;
     color: #E0E0E0;
+    border-top: 2px solid #333;
     text-align: center;
-    padding: 1rem;
-    border-top: 1px solid #333;
+    padding: 20px;
+    font-size: 0.9rem;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Enlaces generales */
-a {
-    transition: color 0.3s ease;
+/* Estilo de imagen en el footer */
+footer img {
+    height: 20px;
+    vertical-align: middle;
 }
 
-/* Imágenes */
-img {
-    max-width: 100%;
-    height: auto;
-}
-
-/* Ajustes responsivos */
-@media (max-width: 768px) {
-    nav.primary-nav,
-    nav.subnav {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+/* HR */
+hr {
+    border: none;
+    border-top: 1px solid #555;
+    margin: 20px 0;
 }
