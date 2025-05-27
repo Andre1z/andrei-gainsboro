@@ -105,58 +105,41 @@ hr {
     margin: 20px 0;
 }
 /* =======================================================
-   REGLAS RESPONSIVAS
+   REGLAS RESPONSIVAS PARA CONTACTO, BLOG Y CONTENEDORES GENERALES
    ======================================================= */
 
 @media (max-width: 768px) {
 
-    /* Ajuste en el header */
+    /* ---------- Ajustes Generales ---------- */
     header {
         padding: 10px;
         text-align: center;
     }
-
     header h1 {
         font-size: 1.5rem;
         flex-direction: column;
     }
-
     header h1 img {
         margin: 0 0 10px;
-        height: 35px; /* Se reduce el tamaño del logo en el header */
+        height: 35px;
     }
-
-    /* Navegación primaria y secundaria */
     nav.primary-nav,
     nav.subnav {
         flex-direction: column;
         align-items: center;
         padding: 10px 0;
     }
-
     nav.primary-nav a,
     nav.subnav a {
         margin: 5px 0;
         padding: 5px 10px;
     }
-
-    /* Área principal y contenido */
     main {
         margin: 10px;
         padding: 15px;
         max-width: 100%;
         box-sizing: border-box;
     }
-
-    /* Ajuste en los artículos */
-    article {
-        margin-bottom: 15px;
-    }
-    article h3 {
-        font-size: 1.3rem;
-    }
-
-    /* Footer */
     footer {
         padding: 15px;
         font-size: 0.8rem;
@@ -165,17 +148,49 @@ hr {
         height: 18px;
     }
     
-    /* Opcional: Ajustes de formularios y botones */
+    /* ---------- Ajustes para la Sección de Contacto ---------- */
+    /* Aseguramos que el formulario ocupe el ancho completo y se adapten sus elementos */
+    form {
+        width: 100%;
+        padding: 0 10px;
+    }
+    form label {
+        font-size: 1rem;
+        display: block;
+        margin-bottom: 5px;
+    }
     form input[type="text"],
     form input[type="email"],
     form textarea,
     form select {
-        font-size: 0.9rem;
-        padding: 8px;
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+    form button {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
     }
     
-    form button {
-        padding: 8px 12px;
+    /* ---------- Ajustes para la Sección del Blog ---------- */
+    /* Si tus artículos del blog están contenidos en <article> */
+    article {
+        margin: 10px 0;
+        padding: 10px;
+    }
+    article h3 {
+        font-size: 1.2rem;
+    }
+    article time {
+        display: block;
         font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    /* Si usas un contenedor general para el contenido del blog (por ejemplo, .blog-content) */
+    .blog-content {
+         padding: 10px;
     }
 }
