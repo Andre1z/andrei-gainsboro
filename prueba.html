@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Rotación de Cámara y Tumbe del Objeto con Teclas</title>
+    <!-- Cargar A-Frame -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      a-scene {
+        width: 100%;
+        height: 100vh;
+      }
+    </style>
+    <!-- Polyfills para funciones requeridas -->
+    <script>
+      // Asegurarse de que THREE.Math exista
+      if (typeof THREE.Math === "undefined") {
+        THREE.Math = {};
+      }
+      // Definir THREE.Math.degToRad (usando THREE.MathUtils si está disponible)
+      THREE.Math.degToRad =
+        (THREE.MathUtils && typeof THREE.MathUtils.degToRad === "function")
+          ? THREE.MathUtils.degToRad
+          : function(deg) { return deg * (Math.PI / 180); };
+
+      // Polyfill para Quaternion.clone:
+      if (!THREE.Quaternion.prototype.clone) {
+        THREE.Quaternion.prototype.clone = function () {
+          return new THREE.Quaternion(this.x, this.y, this.z, this.w);
+        };
+      }
+      // Polyfill para Quaternion.conjugate:
+      if (!THREE.Quaternion.prototype.conjugate) {
+        THREE.Quaternion.prototype.conjugate = function () {
+          return new THREE.Quaternion(-this.x, -this.y, -this.z, this.w);
+        };
+      }
+      // Polyfill para Quaternion.inverse (para cuaterniones unitarios, el inverso es la conjugada):
+      if (!THREE.Quaternion.prototype.inverse) {
+        THREE.Quaternion.prototype.inverse = function () {
+          return this.conjugate();
+        };
+      }
+    </script>
+    <!-- Componente para rotar el rig de la cámara -->
+    <script>
+      AFRAME.registerComponent('custom-rotate', {
+        schema: { sensitivity: { type: 'number', default: 0.3 } },
+        init: function () {
+          this.isDragging = false;
+          this.startX = 0;
+          this.startY = 0;
+          this.rotation = this.el.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
+          
+          var sceneEl = this.el.sceneEl;
+          if (sceneEl.canvas) {
+            sceneEl.canvas.addEventListener('pointerdown', this.onPointerDown.bind(this));
+          } else {
+            sceneEl.addEventListener('render-target-loaded', () => {
+              sceneEl.canvas.addEventListener('pointerdown', this.onPointerDown.bind(this));
+            });
+          }
+          window.addEventListener('pointermove', this.onPointerMove.bind(this));
+          window.addEventListener('pointerup', this.onPointerUp.bind(this));
+        },
+        onPointerDown: function (evt) {
+          this.isDragging = true;
+          this.startX = evt.clientX;
+          this.startY = evt.clientY;
+          evt.preventDefault();
+        },
+        onPointerMove: function (evt) {
+          if (!this.isDragging) return;
+          var dx = evt.clientX - this.startX;
+          var dy = evt.clientY - this.startY;
+          this.startX = evt.clientX;
+          this.startY = evt.clientY;
+          // El movimiento horizontal modifica el eje Y (giro alrededor del objeto)
+          // y el movimiento vertical el eje X del rig.
+          this.rotation.y += dx * this.data.sensitivity;
+          this.rotation.x += dy * this.data.sensitivity;
+          this.el.setAttribute('rotation', this.rotation);
+          evt.preventDefault();
+        },
+        onPointerUp: function (evt) {
+          this.isDragging = false;
+          evt.preventDefault();
+        }
+      });
+    </script>
+    <!-- Componente para tumbar (rotar) el objeto -->
+    <script>
+      AFRAME.registerComponent('tilt-object', {
+        schema: { sensitivity: { type: 'number', default: 0.2 } },
+        init: function () {
+          this.isDragging = false;
+          this.startX = 0;
+          this.startY = 0;
+          // Escuchar eventos pointer (sobre el elemento del objeto)
+          this.el.addEventListener('pointerdown', this.onPointerDown.bind(this));
+          this.el.addEventListener('pointermove', this.onPointerMove.bind(this));
+          this.el.addEventListener('pointerup', this.onPointerUp.bind(this));
+          this.el.addEventListener('pointercancel', this.onPointerUp.bind(this));
+          // Agregar un listener para eventos de teclado (para las flechas izquierda y derecha)
+          window.addEventListener('keydown', this.onKeyDown.bind(this));
+        },
+        onPointerDown: function (evt) {
+          evt.stopPropagation(); // Evita que active la rotación del rig
+          this.isDragging = true;
+          this.startX = evt.clientX;
+          this.startY = evt.clientY;
+        },
+        onPointerMove: function (evt) {
+          if (!this.isDragging) return;
+          evt.stopPropagation();
+          var deltaX = evt.clientX - this.startX;
+          var deltaY = evt.clientY - this.startY;
+          this.startX = evt.clientX;
+          this.startY = evt.clientY;
+          var currentRot = this.el.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
+          // El movimiento horizontal modifica el eje Z y el vertical el eje X.
+          currentRot.z += deltaX * this.data.sensitivity;
+          currentRot.x += deltaY * this.data.sensitivity;
+          this.el.setAttribute('rotation', currentRot);
+        },
+        onPointerUp: function (evt) {
+          evt.stopPropagation();
+          this.isDragging = false;
+        },
+        onKeyDown: function (evt) {
+          var currentRot = this.el.getAttribute('rotation') || { x: 0, y: 0, z: 0 };
+          var step = 5; // Grados a sumar/gastar por pulsación
+          // Las teclas de dirección: ← y →
+          if (evt.key === 'ArrowRight') {
+            currentRot.z -= step;
+          } else if (evt.key === 'ArrowLeft') {
+            currentRot.z += step;
+          }
+          // Se puede agregar similar comportamiento para flechas arriba/abajo si se desea
+          this.el.setAttribute('rotation', currentRot);
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <a-assets>
+        <!-- Asegúrate de que GlassEnvelope.gltf esté en la misma carpeta -->
+        <a-asset-item id="modeloDidactico" src="GlassEnvelope.gltf"></a-asset-item>
+      </a-assets>
+  
+      <!-- Objeto grande en el centro con tilt-object para tumbarse.
+           Ahora responde tanto a pointer (arrastre sobre el objeto) como a teclado (flechas izquierda/derecha). -->
+      <a-entity id="object"
+                gltf-model="#modeloDidactico"
+                position="0 0 0"
+                rotation="0 0 0"
+                scale="20 20 20"
+                tilt-object>
+      </a-entity>
+  
+      <!-- Rig de la cámara al que se le aplica custom-rotate. La cámara, fija en (0,1.6,5) y con look-at apunta al objeto. -->
+      <a-entity id="cameraRig" custom-rotate position="0 0 0">
+        <a-camera position="0 1.6 5"
+                  look-at="#object"
+                  wasd-controls="enabled: false"
+                  look-controls="enabled: false">
+        </a-camera>
+      </a-entity>
+  
+      <a-sky color="#ECECEC"></a-sky>
+    </a-scene>
+  </body>
+</html>

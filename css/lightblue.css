@@ -50,7 +50,7 @@ nav a:hover {
     background-color: #0277bd;
 }
 
-/* Estilo adicional para imágenes en los enlaces */
+/* Estilo adicional para imágenes en enlaces */
 nav a img {
     width: 28px;
 }
@@ -94,7 +94,6 @@ footer {
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Estilo adicional para imágenes en el footer */
 footer img {
     height: 20px;
     vertical-align: middle;
@@ -107,14 +106,30 @@ hr {
     margin: 20px 0;
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    nav {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
+/* ===============================
+   ESTILOS PARA BOTONES
+   =============================== */
+button {
+    background-color: #039be5;  /* Fondo botón: Azul vivo */
+    color: #fff;                /* Texto blanco */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
 }
+
+button:hover {
+    background-color: #0277bd;  /* Azul oscuro en hover */
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
 /* =======================================================
    REGLAS RESPONSIVAS PARA CONTACTO, BLOG Y CONTENEDORES GENERALES
    ======================================================= */
@@ -160,7 +175,6 @@ hr {
     }
     
     /* ---------- Ajustes para la Sección de Contacto ---------- */
-    /* Aseguramos que el formulario ocupe el ancho completo y se adapten sus elementos */
     form {
         width: 100%;
         padding: 0 10px;
@@ -187,7 +201,6 @@ hr {
     }
     
     /* ---------- Ajustes para la Sección del Blog ---------- */
-    /* Si tus artículos del blog están contenidos en <article> */
     article {
         margin: 10px 0;
         padding: 10px;
@@ -200,7 +213,6 @@ hr {
         font-size: 0.9rem;
         margin-bottom: 5px;
     }
-    /* Si usas un contenedor general para el contenido del blog (por ejemplo, .blog-content) */
     .blog-content {
          padding: 10px;
     }

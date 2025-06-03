@@ -94,7 +94,6 @@ footer {
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Estilo adicional para imágenes en el footer */
 footer img {
     height: 20px;
     vertical-align: middle;
@@ -107,69 +106,92 @@ hr {
     margin: 20px 0;
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    nav {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
+/* ===============================
+   ESTILOS PARA BOTONES
+   =============================== */
+button {
+    background-color: #4CAF50;  /* Fondo botón: verde medio */
+    color: #fff;                /* Texto blanco */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
 }
-/* =======================================================
+
+button:hover {
+    background-color: #2E7D32;  /* Verde intenso en hover */
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* ===============================
    REGLAS RESPONSIVAS PARA CONTACTO, BLOG Y CONTENEDORES GENERALES
-   ======================================================= */
+   =============================== */
 
 @media (max-width: 768px) {
-
-    /* ---------- Ajustes Generales ---------- */
+    /* Ajustes generales */
     header {
         padding: 10px;
         text-align: center;
     }
+    
     header h1 {
         font-size: 1.5rem;
         flex-direction: column;
     }
+    
     header h1 img {
         margin: 0 0 10px;
         height: 35px;
     }
+    
     nav.primary-nav,
     nav.subnav {
         flex-direction: column;
         align-items: center;
         padding: 10px 0;
     }
+    
     nav.primary-nav a,
     nav.subnav a {
         margin: 5px 0;
         padding: 5px 10px;
     }
+    
     main {
         margin: 10px;
         padding: 15px;
         max-width: 100%;
         box-sizing: border-box;
     }
+    
     footer {
         padding: 15px;
         font-size: 0.8rem;
     }
+    
     footer img {
         height: 18px;
     }
     
-    /* ---------- Ajustes para la Sección de Contacto ---------- */
-    /* Aseguramos que el formulario ocupe el ancho completo y se adapten sus elementos */
+    /* Ajustes para la sección de Contacto */
     form {
         width: 100%;
         padding: 0 10px;
     }
+    
     form label {
         font-size: 1rem;
         display: block;
         margin-bottom: 5px;
     }
+    
     form input[type="text"],
     form input[type="email"],
     form textarea,
@@ -180,27 +202,29 @@ hr {
         font-size: 1rem;
         box-sizing: border-box;
     }
+    
     form button {
         width: 100%;
         padding: 10px;
         font-size: 1rem;
     }
     
-    /* ---------- Ajustes para la Sección del Blog ---------- */
-    /* Si tus artículos del blog están contenidos en <article> */
+    /* Ajustes para la sección del Blog */
     article {
         margin: 10px 0;
         padding: 10px;
     }
+    
     article h3 {
         font-size: 1.2rem;
     }
+    
     article time {
         display: block;
         font-size: 0.9rem;
         margin-bottom: 5px;
     }
-    /* Si usas un contenedor general para el contenido del blog (por ejemplo, .blog-content) */
+    
     .blog-content {
          padding: 10px;
     }

@@ -38,11 +38,18 @@ nav a {
     text-decoration: none;
     margin-right: 15px;
     font-weight: 500;
+    padding: 6px 8px;
+    transition: color 0.3s;
 }
 
 nav a:hover {
     color: #000;
     text-decoration: underline;
+}
+
+/* Estilo adicional para imágenes en los enlaces */
+nav a img {
+    width: 28px;
 }
 
 main {
@@ -66,6 +73,7 @@ article h3 {
     font-size: 1.4rem;
 }
 
+/* FOOTER */
 footer {
     background-color: #f0f0f0;
     border-top: 1px solid #ccc;
@@ -84,6 +92,31 @@ hr {
     border-top: 1px solid #ccc;
     margin: 20px 0;
 }
+
+/* ================================
+   ESTILOS PARA BOTONES
+   ================================ */
+button {
+    background-color: gainsboro;  /* Fondo botón: verde medio */
+    color: #000;                /* Texto blanco */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
+}
+
+button:hover {
+    background-color: #4b4b4b;  /* Verde intenso en hover */
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
 /* =======================================================
    REGLAS RESPONSIVAS PARA CONTACTO, BLOG Y CONTENEDORES GENERALES
    ======================================================= */
@@ -129,7 +162,6 @@ hr {
     }
     
     /* ---------- Ajustes para la Sección de Contacto ---------- */
-    /* Aseguramos que el formulario ocupe el ancho completo y se adapten sus elementos */
     form {
         width: 100%;
         padding: 0 10px;
@@ -156,7 +188,6 @@ hr {
     }
     
     /* ---------- Ajustes para la Sección del Blog ---------- */
-    /* Si tus artículos del blog están contenidos en <article> */
     article {
         margin: 10px 0;
         padding: 10px;
@@ -169,7 +200,6 @@ hr {
         font-size: 0.9rem;
         margin-bottom: 5px;
     }
-    /* Si usas un contenedor general para el contenido del blog (por ejemplo, .blog-content) */
     .blog-content {
          padding: 10px;
     }

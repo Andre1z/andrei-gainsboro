@@ -1,5 +1,5 @@
 <?php
-session_start(); // Inicia la sesión para usarla en la verificación del captcha y otros procesos.
+session_start(); // Inicia la sesión para procesos adicionales.
 require_once 'config.php';
 
 // Inicializa la base de datos SQLite3
@@ -66,8 +66,7 @@ $db->exec("CREATE TABLE IF NOT EXISTS custom_css (
 // ---------------------------------------------------------------------
 // Inserción de valores por defecto en la tabla de configuración
 // ---------------------------------------------------------------------
-$db->exec("
-    INSERT OR IGNORE INTO config (key, value) VALUES
+$db->exec("INSERT OR IGNORE INTO config (key, value) VALUES
         ('title', 'andrei | gainsboro'),
         ('logo', 'https://andrei.com/static/logo/andrei%20|%20gainsboro.svg'),
         ('meta_description', 'Descripción por defecto del sitio'),
@@ -79,7 +78,7 @@ $db->exec("
 ");
 
 // ---------------------------------------------------------------------
-// Recuperación de la configuración almacenada
+// Recupera la configuración almacenada
 // ---------------------------------------------------------------------
 $config = [];
 $resultConfig = $db->query("SELECT key, value FROM config");
@@ -111,7 +110,7 @@ if (!in_array($activeTheme, $availableThemes) && count($availableThemes) > 0) {
 }
 
 // ---------------------------------------------------------------------
-// Recuperación del CSS personalizado activo (si existe)
+// Recupera el CSS personalizado activo (si existe)
 // ---------------------------------------------------------------------
 $activeCustomCss = "";
 $cssResult = $db->query("SELECT content FROM custom_css WHERE active = 1");
@@ -126,8 +125,6 @@ if ($cssResult) {
 // ---------------------------------------------------------------------
 function renderPrimaryNav($db) {
     $navHTML = "<nav class='primary-nav'>";
-    
-    // Verifica si existe una página con el título 'inicio'
     $stmt = $db->prepare("SELECT COUNT(*) AS count FROM pages WHERE title = 'inicio'");
     $result = $stmt->execute();
     $row = $result->fetchArray(SQLITE3_ASSOC);
@@ -135,21 +132,16 @@ function renderPrimaryNav($db) {
         $active = (isset($_GET['page']) && $_GET['page'] === 'inicio') ? "active" : "";
         $navHTML .= "<a class='$active' href='?page=inicio'>Inicio</a>";
     }
-    
-    // Muestra las páginas de primer nivel, excepto "inicio", "blog" y "contacto"
     $stmt = $db->prepare("SELECT * FROM pages WHERE parent_id IS NULL AND title NOT IN ('inicio','blog','contacto') ORDER BY title ASC");
     $result = $stmt->execute();
     while ($page = $result->fetchArray(SQLITE3_ASSOC)) {
          $active = (isset($_GET['page']) && $_GET['page'] === $page['title']) ? "active" : "";
          $navHTML .= "<a class='$active' href='?page=" . urlencode($page['title']) . "'>" . htmlspecialchars($page['title']) . "</a>";
     }
-    
-    // Enlaces estáticos para Blog y Contacto
     $active = (isset($_GET['page']) && $_GET['page'] === 'blog') ? "active" : "";
     $navHTML .= "<a class='$active' href='?page=blog'>Blog</a>";
     $active = (isset($_GET['page']) && $_GET['page'] === 'contacto') ? "active" : "";
     $navHTML .= "<a class='$active' href='?page=contacto'>Contacto</a>";
-    
     $navHTML .= "</nav>";
     return $navHTML;
 }
@@ -181,7 +173,7 @@ function getActiveChain($db, $pageTitle) {
 }
 
 // ---------------------------------------------------------------------
-// Función: Renderiza la subnavegación de forma recursiva
+// Función: Renderiza la subnavegación recursiva
 // ---------------------------------------------------------------------
 function renderSubNav($db, $parentId, $activeChain) {
     $stmt = $db->prepare("SELECT * FROM pages WHERE parent_id = :parent_id ORDER BY title ASC");
@@ -200,7 +192,6 @@ function renderSubNav($db, $parentId, $activeChain) {
          $subNavHTML .= "<a class='$active' href='?page=" . urlencode($child['title']) . "'>" . htmlspecialchars($child['title']) . "</a>";
     }
     $subNavHTML .= "</nav>";
-    // Renderiza de forma recursiva los submenús para los hijos de la cadena activa
     foreach ($children as $child) {
          if (in_array($child['id'], $activeChain)) {
               $subNavHTML .= renderSubNav($db, $child['id'], $activeChain);
@@ -210,7 +201,7 @@ function renderSubNav($db, $parentId, $activeChain) {
 }
 
 // ---------------------------------------------------------------------
-// Función: Obtiene y renderiza la sección "hero" de la página (si existe)
+// Función: Recupera y renderiza la sección "hero" (si existe)
 // ---------------------------------------------------------------------
 function fetchHeroSection($db, $slug) {
      $stmt = $db->prepare("SELECT * FROM heroes WHERE page_slug = :slug");
@@ -235,7 +226,8 @@ function fetchHeroSection($db, $slug) {
 }
 
 // ---------------------------------------------------------------------
-// Función: Renderiza la estructura completa del sitio público
+// Función: Renderiza la plantilla completa de la página.
+// El parámetro $extraScript permite inyectar código extra (por ejemplo, A-Frame).
 // ---------------------------------------------------------------------
 function render(
      $hero,
@@ -250,7 +242,8 @@ function render(
      $metaTags,
      $metaAuthor,
      $analyticsUser,
-     $customCssRules
+     $customCssRules,
+     $extraScript = ''
 ) {
      echo "<!DOCTYPE html>\n";
      echo "<html lang='en'>\n";
@@ -266,12 +259,15 @@ function render(
           echo "      <style>\n$customCssRules\n      </style>\n";
      }
      echo "      <link rel='icon' type='image/svg+xml' href='gainsboro.png'>\n";
+     if (!empty($extraScript)) {
+         echo "      $extraScript\n";
+     }
      echo "  </head>\n";
      echo "  <body>\n";
      echo "      <header>\n";
      echo "          <h1>\n";
      echo "              <a href='?page=inicio' style='text-decoration: none;'>\n";
-     echo "                  <img src=\"gainsboro.png\" alt=\"Site Logo\"> $title\n";
+     echo "                  <img src='gainsboro.png' alt='Site Logo'> $title\n";
      echo "              </a>\n";
      echo "          </h1>\n";
      echo "      </header>\n";
@@ -282,9 +278,9 @@ function render(
      }
      echo "      <main>\n$content\n      </main>\n";
      echo "      <footer>\n";
-     echo "          &copy; " . date('Y') . " <img src=\"gainsboro.png\" alt=\"Footer Logo\"> $title\n";
+     echo "          &copy; " . date('Y') . " <img src='gainsboro.png' alt='Footer Logo'> $title\n";
      echo "      </footer>\n";
-     echo "      <script src=\"https://ghostwhite.jocarsa.com/analytics.js?user=$analyticsUser\"></script>\n";
+     echo "      <script src='https://ghostwhite.jocarsa.com/analytics.js?user=$analyticsUser'></script>\n";
      echo "  </body>\n";
      echo "</html>\n";
 }
@@ -293,24 +289,14 @@ function render(
 // Manejo de la solicitud según el parámetro GET "page"
 // ---------------------------------------------------------------------
 $pageParam = $_GET['page'] ?? 'inicio';
-
-// Obtiene la cadena activa (IDs de las páginas) para la subnavegación.
 $activeChain = getActiveChain($db, $pageParam);
-
-// Renderiza la navegación primaria.
 $primaryNav = renderPrimaryNav($db);
-
-// Renderiza la subnavegación (si existe).
-$subNav = "";
-if (!empty($activeChain)) {
-     $subNav = renderSubNav($db, $activeChain[0], $activeChain);
-}
+$subNav = !empty($activeChain) ? renderSubNav($db, $activeChain[0], $activeChain) : "";
 
 // ---------------------------------------------------------------------
-// Procesamiento de la solicitud basado en el valor de "page"
+// Procesa la solicitud según el valor de "page"
 // ---------------------------------------------------------------------
 if ($pageParam === 'blog') {
-     // Procesa y renderiza las entradas del blog.
      $blogResult = $db->query("SELECT title, content, created_at FROM blog ORDER BY created_at DESC");
      $blogContent = "<h2>Blog</h2>\n";
      while ($entry = $blogResult->fetchArray(SQLITE3_ASSOC)) {
@@ -321,9 +307,9 @@ if ($pageParam === 'blog') {
           $blogContent .= "</article>\n<hr>\n";
      }
      $heroSection = fetchHeroSection($db, 'blog');
-     render($heroSection, $blogContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+     render($heroSection, $blogContent, $primaryNav, $subNav, $activeTheme, $title, $logo,
+            $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } elseif ($pageParam === 'contacto') {
-     // Procesa y renderiza el formulario de contacto con verificación del captcha interno.
      $contactContent = "<h2>Contacto</h2>";
      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $name    = trim($_POST['name'] ?? '');
@@ -332,7 +318,6 @@ if ($pageParam === 'blog') {
           $message = trim($_POST['message'] ?? '');
           $userCaptcha = trim($_POST['captcha_answer'] ?? '');
           
-          // Verifica que la respuesta del captcha matemático (almacenada en $_SESSION['captcha_answer']) sea correcta.
           if (!isset($_SESSION['captcha_answer']) || $userCaptcha != $_SESSION['captcha_answer']) {
                $contactContent .= "<p style='color:red;'>La respuesta al captcha es incorrecta. Por favor, inténtalo de nuevo.</p>";
           } elseif ($name && $email && $subject && $message) {
@@ -347,7 +332,6 @@ if ($pageParam === 'blog') {
                $contactContent .= "<p style='color:red;'>Por favor, rellena todos los campos.</p>";
           }
      }
-     // Se incluye el widget del captcha matemático generado internamente.
      $contactContent .= "
          <form method='post'>
               <label for='name'>Nombre Completo:</label><br>
@@ -362,7 +346,6 @@ if ($pageParam === 'blog') {
               <label for='message'>Mensaje:</label><br>
               <textarea id='message' name='message' rows='5' required></textarea><br><br>
               
-              <!-- Captcha matemático generado internamente -->
               <img src='captcha.php' alt='Captcha'><br><br>
               <label for='captcha_answer'>Resuelve la operación:</label><br>
               <input type='text' id='captcha_answer' name='captcha_answer' required><br><br>
@@ -371,9 +354,59 @@ if ($pageParam === 'blog') {
          </form>";
      
      $heroSection = fetchHeroSection($db, 'contacto');
-     render($heroSection, $contactContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+     render($heroSection, $contactContent, $primaryNav, $subNav, $activeTheme, $title, $logo,
+            $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+} elseif (strtolower($pageParam) === 'material didactico') {
+     // Para "Material didactico": se muestra un botón para cargar el contenido A-Frame en un iframe.
+     // Se inyecta en el contenedor un fondo (el iframe mostrará la experiencia, pero se fuerza el a-sky a tener color #808080)
+     // y una leyenda superpuesta con los controles, que queda dentro de este contenedor.
+     $pageContent = "<h2>Material Didactico</h2>
+     <p>Pulsa el botón para cargar la experiencia interactiva.</p>
+     <button id='showAframeBtn'>Mostrar A-Frame</button>
+     <div id='aframeContainer' style='display:none; margin-top:20px; position:relative;'>
+       <!-- Leyenda superpuesta -->
+       <div id='legendOverlay' style='position:absolute; top:10px; left:10px; background: rgba(0,0,0,0.6); color: #fff; padding: 8px 12px; border-radius: 4px; z-index: 1000;'>
+         <strong>Controles:</strong><br>
+         • Arrastra fuera del objeto para rotar la cámara.<br>
+         • Arrastra sobre el objeto para tumbarlo.<br>
+         • Usa las teclas &larr; y &rarr; para inclinar el objeto.<br>
+         <br>
+         Nota: Si algunas acciones no funcionan, ponlo en pantalla completa y salte para que las acciones de teclado funcionen correctamente.
+       </div>
+       <button id='hideAframeBtn' style='position:absolute; top:10px; right:10px; z-index:1000;'>Ocultar A-Frame</button>
+       <iframe id='aframeIframe' src='prueba.html' style='width:100%; height:600px; border:0; display:block;'></iframe>
+     </div>
+     <script>
+       document.getElementById('showAframeBtn').addEventListener('click', function(){
+         document.getElementById('aframeContainer').style.display = 'block';
+         this.style.display = 'none';
+         window.focus();
+       });
+       document.getElementById('hideAframeBtn').addEventListener('click', function(){
+         document.getElementById('aframeContainer').style.display = 'none';
+         document.getElementById('showAframeBtn').style.display = 'inline-block';
+         window.focus();
+       });
+       document.getElementById('aframeIframe').addEventListener('click', function(){
+         window.focus();
+       });
+       // Al cargarse el contenido del iframe, se fuerza el color del <a-sky> a #808080.
+       document.getElementById('aframeIframe').onload = function(){
+         try {
+           var aframeDoc = this.contentDocument || this.contentWindow.document;
+           var sky = aframeDoc.querySelector('a-sky');
+           if(sky){
+             sky.setAttribute('color', '#808080');
+           }
+         } catch(e) {
+           console.error('No se pudo acceder al contenido del iframe:', e);
+         }
+       };
+     </script>";
+     $heroSection = fetchHeroSection($db, 'material didactico');
+     render($heroSection, $pageContent, $primaryNav, $subNav, $activeTheme, $title, $logo,
+            $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } else {
-     // Procesa y renderiza el contenido de una página normal.
      $stmt = $db->prepare("SELECT content FROM pages WHERE title = :title");
      $stmt->bindValue(':title', $pageParam, SQLITE3_TEXT);
      $result = $stmt->execute();
@@ -381,9 +414,11 @@ if ($pageParam === 'blog') {
      if ($pageData) {
           $pageContent = "<h2>" . htmlspecialchars($pageParam) . "</h2>\n<div>" . $pageData['content'] . "</div>\n";
           $heroSection = fetchHeroSection($db, $pageParam);
-          render($heroSection, $pageContent, $primaryNav, $subNav, $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+          render($heroSection, $pageContent, $primaryNav, $subNav, $activeTheme, $title, $logo,
+                 $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
      } else {
-          render("", "<h2>Página No Encontrada</h2>", $primaryNav, "", $activeTheme, $title, $logo, $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
+          render("", "<h2>Página No Encontrada</h2>", $primaryNav, "", $activeTheme, $title, $logo,
+                 $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
      }
 }
 

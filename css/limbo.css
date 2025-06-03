@@ -1,33 +1,32 @@
-/* orange.css
+/* limbo.css
    A theme reminiscent of older Mambo/Joomla (Limbo) styles with an orange color scheme */
 
+/* Reset y configuración base */
 html, body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
     color: #333;
-    background-color: #fff; /* Keep a clean white background for the page */
+    background-color: #fff; /* Fondo blanco para la página */
 }
 
 /* HEADER */
 header {
-    /* Create a subtle vertical gradient from a lighter to a deeper orange */
+    /* Gradiente vertical de un naranja claro a un naranja más profundo */
     background: linear-gradient(to bottom, #f79e59 0%, #f47824 100%);
     padding: 20px;
     border-bottom: 2px solid #d05404;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Site Title */
 header h1 {
     margin: 0;
     font-size: 1.8rem;
     display: flex;
     align-items: center;
-    color: #fff; /* White text for better contrast on the orange background */
+    color: #fff;
 }
 
-/* Logo in header */
 header h1 img {
     height: 40px;
     margin-right: 10px;
@@ -46,13 +45,12 @@ nav a {
     margin-right: 15px;
     font-weight: 500;
     padding: 6px 8px;
-    /* Slight background hover effect */
     transition: background-color 0.3s;
 }
 
 nav a:hover {
     background-color: #d05404;
-    color: #fff; /* Keep text white when hovering on darker orange */
+    color: #fff;
 }
 
 /* MAIN CONTENT AREA */
@@ -62,7 +60,6 @@ main {
     background-color: #fff;
     padding: 20px;
     border: 1px solid #eee;
-    border-top: none;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -80,7 +77,7 @@ article {
 article h3 {
     margin-top: 0;
     font-size: 1.4rem;
-    color: #f47824; /* Heading color to reinforce the orange theme */
+    color: #f47824;
 }
 
 /* FOOTER */
@@ -104,6 +101,31 @@ hr {
     border-top: 1px solid #ddd;
     margin: 20px 0;
 }
+
+/* ================================
+   ESTILOS PARA BOTONES
+   ================================ */
+button {
+    background-color: #f79e59;  /* Fondo: naranja claro, en línea con el gradiente */
+    color: #fff;                /* Texto blanco */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
+}
+
+button:hover {
+    background-color: #d05404;  /* Cambio a un naranja más profundo en hover */
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
 /* =======================================================
    REGLAS RESPONSIVAS PARA CONTACTO, BLOG Y CONTENEDORES GENERALES
    ======================================================= */
@@ -149,7 +171,6 @@ hr {
     }
     
     /* ---------- Ajustes para la Sección de Contacto ---------- */
-    /* Aseguramos que el formulario ocupe el ancho completo y se adapten sus elementos */
     form {
         width: 100%;
         padding: 0 10px;
@@ -176,7 +197,6 @@ hr {
     }
     
     /* ---------- Ajustes para la Sección del Blog ---------- */
-    /* Si tus artículos del blog están contenidos en <article> */
     article {
         margin: 10px 0;
         padding: 10px;
@@ -189,7 +209,6 @@ hr {
         font-size: 0.9rem;
         margin-bottom: 5px;
     }
-    /* Si usas un contenedor general para el contenido del blog (por ejemplo, .blog-content) */
     .blog-content {
          padding: 10px;
     }
