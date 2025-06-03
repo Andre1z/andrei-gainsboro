@@ -125,6 +125,8 @@ if ($cssResult) {
 // ---------------------------------------------------------------------
 function renderPrimaryNav($db) {
     $navHTML = "<nav class='primary-nav'>";
+    
+    // Verifica si existe una página 'inicio'
     $stmt = $db->prepare("SELECT COUNT(*) AS count FROM pages WHERE title = 'inicio'");
     $result = $stmt->execute();
     $row = $result->fetchArray(SQLITE3_ASSOC);
@@ -132,16 +134,21 @@ function renderPrimaryNav($db) {
         $active = (isset($_GET['page']) && $_GET['page'] === 'inicio') ? "active" : "";
         $navHTML .= "<a class='$active' href='?page=inicio'>Inicio</a>";
     }
+    
+    // Muestra las páginas de primer nivel (excepto 'inicio', 'blog' y 'contacto')
     $stmt = $db->prepare("SELECT * FROM pages WHERE parent_id IS NULL AND title NOT IN ('inicio','blog','contacto') ORDER BY title ASC");
     $result = $stmt->execute();
     while ($page = $result->fetchArray(SQLITE3_ASSOC)) {
          $active = (isset($_GET['page']) && $_GET['page'] === $page['title']) ? "active" : "";
          $navHTML .= "<a class='$active' href='?page=" . urlencode($page['title']) . "'>" . htmlspecialchars($page['title']) . "</a>";
     }
+    
+    // Enlaces fijos para 'Blog' y 'Contacto'
     $active = (isset($_GET['page']) && $_GET['page'] === 'blog') ? "active" : "";
     $navHTML .= "<a class='$active' href='?page=blog'>Blog</a>";
     $active = (isset($_GET['page']) && $_GET['page'] === 'contacto') ? "active" : "";
     $navHTML .= "<a class='$active' href='?page=contacto'>Contacto</a>";
+    
     $navHTML .= "</nav>";
     return $navHTML;
 }
@@ -227,7 +234,6 @@ function fetchHeroSection($db, $slug) {
 
 // ---------------------------------------------------------------------
 // Función: Renderiza la plantilla completa de la página.
-// El parámetro $extraScript permite inyectar código extra (por ejemplo, A-Frame).
 // ---------------------------------------------------------------------
 function render(
      $hero,
@@ -250,6 +256,7 @@ function render(
      echo "  <head>\n";
      echo "      <meta charset='UTF-8'>\n";
      echo "      <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n";
+     echo "      <script src='https://www.google.com/recaptcha/api.js' async defer></script>\n";
      echo "      <title>$title</title>\n";
      echo "      <meta name='description' content='$metaDescription'>\n";
      echo "      <meta name='keywords' content='$metaTags'>\n";
@@ -286,7 +293,7 @@ function render(
 }
 
 // ---------------------------------------------------------------------
-// Manejo de la solicitud según el parámetro GET "page"
+// Procesa la solicitud según el parámetro GET "page"
 // ---------------------------------------------------------------------
 $pageParam = $_GET['page'] ?? 'inicio';
 $activeChain = getActiveChain($db, $pageParam);
@@ -316,10 +323,17 @@ if ($pageParam === 'blog') {
           $email   = trim($_POST['email'] ?? '');
           $subject = trim($_POST['subject'] ?? '');
           $message = trim($_POST['message'] ?? '');
-          $userCaptcha = trim($_POST['captcha_answer'] ?? '');
           
-          if (!isset($_SESSION['captcha_answer']) || $userCaptcha != $_SESSION['captcha_answer']) {
-               $contactContent .= "<p style='color:red;'>La respuesta al captcha es incorrecta. Por favor, inténtalo de nuevo.</p>";
+          // Verifica reCAPTCHA
+          $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
+          $secretKey = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe";
+          $userIP = $_SERVER['REMOTE_ADDR'];
+          $url = "https://www.google.com/recaptcha/api/siteverify?secret={$secretKey}&response={$recaptchaResponse}&remoteip={$userIP}";
+          $request = file_get_contents($url);
+          $responseData = json_decode($request);
+          
+          if (!$responseData->success) {
+               $contactContent .= "<p style='color:red;'>Por favor, verifica que eres humano.</p>";
           } elseif ($name && $email && $subject && $message) {
                $stmt = $db->prepare("INSERT INTO contact (name, email, subject, message) VALUES (:n, :e, :s, :m)");
                $stmt->bindValue(':n', $name, SQLITE3_TEXT);
@@ -357,21 +371,23 @@ if ($pageParam === 'blog') {
      render($heroSection, $contactContent, $primaryNav, $subNav, $activeTheme, $title, $logo,
             $footerImage, $metaDescription, $metaTags, $metaAuthor, $analyticsUser, $activeCustomCss);
 } elseif (strtolower($pageParam) === 'material didactico') {
-     // Para "Material didactico": se muestra un botón para cargar el contenido A-Frame en un iframe.
-     // Se inyecta en el contenedor un fondo (el iframe mostrará la experiencia, pero se fuerza el a-sky a tener color #808080)
-     // y una leyenda superpuesta con los controles, que queda dentro de este contenedor.
+     // Para "Material didactico": se muestra un botón para cargar la experiencia A-Frame en un iframe.
+     // No se altera la posición del botón "Ocultar A-Frame". Se actualiza el iframe con la última versión de prueba.html,
+     // que incluye la funcionalidad de inclinación 360° y compatibilidad táctil.
+     // Se añade en la leyenda el texto sobre el móvil.
      $pageContent = "<h2>Material Didactico</h2>
      <p>Pulsa el botón para cargar la experiencia interactiva.</p>
      <button id='showAframeBtn'>Mostrar A-Frame</button>
      <div id='aframeContainer' style='display:none; margin-top:20px; position:relative;'>
        <!-- Leyenda superpuesta -->
-       <div id='legendOverlay' style='position:absolute; top:10px; left:10px; background: rgba(0,0,0,0.6); color: #fff; padding: 8px 12px; border-radius: 4px; z-index: 1000;'>
+       <div id='legendOverlay' style='position:absolute; top:10px; left:10px; background: rgba(0,0,0,0.6); color: #fff; padding: 8px 12px; border-radius: 4px; z-index:1000;'>
          <strong>Controles:</strong><br>
          • Arrastra fuera del objeto para rotar la cámara.<br>
          • Arrastra sobre el objeto para tumbarlo.<br>
          • Usa las teclas &larr; y &rarr; para inclinar el objeto.<br>
          <br>
-         Nota: Si algunas acciones no funcionan, ponlo en pantalla completa y salte para que las acciones de teclado funcionen correctamente.
+         <em>En dispositivos móviles, al arrastrar se inclina horizontalmente (360°).</em><br>
+         <em>Nota: Si algunas acciones no funcionan, ponlo en pantalla completa y salte para que las acciones de teclado funcionen correctamente.</em>
        </div>
        <button id='hideAframeBtn' style='position:absolute; top:10px; right:10px; z-index:1000;'>Ocultar A-Frame</button>
        <iframe id='aframeIframe' src='prueba.html' style='width:100%; height:600px; border:0; display:block;'></iframe>
@@ -390,7 +406,7 @@ if ($pageParam === 'blog') {
        document.getElementById('aframeIframe').addEventListener('click', function(){
          window.focus();
        });
-       // Al cargarse el contenido del iframe, se fuerza el color del <a-sky> a #808080.
+       // Forzamos que al cargarse el iframe, el <a-sky> tenga el color #808080.
        document.getElementById('aframeIframe').onload = function(){
          try {
            var aframeDoc = this.contentDocument || this.contentWindow.document;
