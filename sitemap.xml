@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://localhost/?page=inicio</loc>
+    <loc>http://andrei.local/?page=inicio</loc>
     <lastmod>2025-06-03</lastmod>
   </url>
   <url>
-    <loc>http://localhost/?page=blog</loc>
+    <loc>http://andrei.local/?page=blog</loc>
     <lastmod>2025-06-03</lastmod>
   </url>
   <url>
-    <loc>http://localhost/?page=contacto</loc>
+    <loc>http://andrei.local/?page=contacto</loc>
     <lastmod>2025-06-03</lastmod>
   </url>
   <url>
-    <loc>http://localhost/?page=Inicio</loc>
+    <loc>http://andrei.local/?page=Inicio</loc>
     <lastmod>2025-06-03</lastmod>
   </url>
   <url>
-    <loc>http://localhost/?page=Material+Didactico</loc>
+    <loc>http://andrei.local/?page=Material+Didactico</loc>
     <lastmod>2025-06-03</lastmod>
   </url>
 </urlset>
